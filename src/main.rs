@@ -1,8 +1,7 @@
 /*
  * Goal:
- * Create a basic programming language
- * Compile said language targeting wasm
- * solve some online problems in my language :)
+ * 1. Create a simple text editor for C
+ * 2. Create a simple compiler for C
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
  */
 
@@ -13,16 +12,20 @@ mod editor;
 
 use macroquad::prelude::*;
 
-#[macroquad::main("BasicShapes")]
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "EDITOR".to_owned(),
+        // fullscreen: true,
+        window_height: 720,
+        window_width: 1280,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
 async fn main() {
     loop {
-        clear_background(RED);
-
-        draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
-
-        draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
+        clear_background(BLACK);
 
         next_frame().await
     }
