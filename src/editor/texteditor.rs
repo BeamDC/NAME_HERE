@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::BufRead;
-use std::path::Path;
 
 pub struct Textedit {
     pub file: String,
@@ -18,7 +17,6 @@ impl Textedit {
     }
 
     pub fn read(&mut self) -> std::io::Result<()> {
-        let path = Path::new(&self.file);
         let f = File::open(&self.file)?;
         let reader = std::io::BufReader::new(f);
 
