@@ -8,6 +8,9 @@
 mod compiler;
 mod tests;
 mod editor;
+mod types;
+mod traits;
+mod gui;
 
 use macroquad::prelude::*;
 
