@@ -1,18 +1,17 @@
 /*
  * Goal:
- * 1. Create a simple text editor for our own language
- * 2. Create a simple compiler for our language
+ * 1. Create a simple text editor for C
+ * 2. Create a simple compiler for C
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
  */
 
 mod compiler;
 mod tests;
 mod editor;
-mod traits;
-mod types;
-mod gui;
 
 use macroquad::prelude::*;
+
+
 
 fn window_conf() -> Conf {
     Conf {
@@ -26,8 +25,14 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    let window_height: f32 = 720.;
+    let window_width: f32 = 1280.;
+
     loop {
-        clear_background(BLACK);
+        draw_text(format!("{}", get_fps()).as_str(), (window_width - 30.), 20., 32., YELLOW);
+
+
+        /// Clear screen, go next
         next_frame().await
     }
 }
