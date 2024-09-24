@@ -1,1 +1,1 @@
-pub(crate) mod binscript;
+pub(crate) mod language_name;

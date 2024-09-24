@@ -1,10 +1,4 @@
 /*
- * Functionality:
- * Read code into buffer
- * Split code into tokens
- * use tokens to piece together wasm
- * output wasm to web module to run
- *
  * Components:
  * Lexical analyser - Read the written code from a file, split it into usable tokens
  * Syntax analyser - Ensure the written code tokens are used correctly

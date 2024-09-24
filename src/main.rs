@@ -1,14 +1,16 @@
 /*
  * Goal:
- * 1. Create a simple text editor for C
- * 2. Create a simple compiler for C
+ * 1. Create a simple text editor for our own language
+ * 2. Create a simple compiler for our language
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
  */
 
 mod compiler;
-mod web;
 mod tests;
 mod editor;
+mod traits;
+mod types;
+mod gui;
 
 use macroquad::prelude::*;
 
@@ -26,7 +28,6 @@ fn window_conf() -> Conf {
 async fn main() {
     loop {
         clear_background(BLACK);
-
         next_frame().await
     }
 }
