@@ -13,7 +13,6 @@ mod traits;
 mod gui;
 
 use macroquad::prelude::*;
-use gui::*;
 use crate::gui::editor::EditorGui;
 
 fn window_conf() -> Conf {

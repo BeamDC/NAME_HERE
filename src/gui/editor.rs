@@ -22,19 +22,19 @@ impl EditorGui {
     }
 
     pub fn draw(&mut self) {
-        // write all text to the screen, on \n or its equivalent
-        // jump down to new line by size + spacing
-        self.textedit.read()
-            .unwrap_or_else(
-                |_| panic!("Error reading file: {}", self.textedit.file)
-            );
+        // when keyword coloring is added, this will have to change
+        self.textedit.read().unwrap();
         let contents: &str = &String::from_utf8(self.textedit.buffer.clone()).unwrap();
+        self.draw_contents(contents);
+        self.draw_line_numbers(contents);
+    }
+
+    fn draw_contents(&mut self, contents: &str) {
         draw_multiline_text(contents,
                             self.indent, self.vert_gap,
                             self.font_size,
                             Some(self.spacing),
                             WHITE);
-        self.draw_line_numbers(contents);
     }
 
     fn draw_line_numbers(&mut self, contents: &str) {
@@ -47,5 +47,11 @@ impl EditorGui {
                       GRAY);
             y += self.font_size;
         }
+    }
+
+    fn draw_pointer(&mut self) {
+        // draw a vertical line between chars (ascii 124),
+        // with the first char being at the position of the pointer
+
     }
 }
