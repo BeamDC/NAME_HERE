@@ -11,13 +11,13 @@ pub struct Textedit {
 impl Textedit {
     pub fn new() -> Self {
         Self {
-            file: "default.txt".to_owned(),
+            file: "src/editor/default.txt".to_owned(),
             buffer: vec![],
             pointer: 0,
         }
     }
 
-    pub fn read(&mut self) -> std::io::Result<()>{
+    pub fn read(&mut self) -> std::io::Result<()> {
         self.buffer = Vec::new();
         self.buffer = fs::read(&self.file)?;
         Ok(())

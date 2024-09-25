@@ -20,7 +20,7 @@ fn test_read() {
 fn test_write() {
     let mut textedit = Textedit::new();
     textedit.file = "src/tests/sample_inputs.txt".to_owned();
-    textedit.read().unwrap(); // we know read works from previous test
+    textedit.read().unwrap();
     textedit.file = "src/tests/sample_outputs.txt".to_owned();
     textedit.write().unwrap();
     textedit.read().unwrap();

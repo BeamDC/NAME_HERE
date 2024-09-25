@@ -13,8 +13,8 @@ mod traits;
 mod gui;
 
 use macroquad::prelude::*;
-
-
+use gui::*;
+use crate::gui::editor::EditorGui;
 
 fn window_conf() -> Conf {
     Conf {
@@ -30,10 +30,10 @@ fn window_conf() -> Conf {
 async fn main() {
     let window_height: f32 = 720.;
     let window_width: f32 = 1280.;
-
+    let mut editor = EditorGui::new();
     loop {
         draw_text(format!("{}", get_fps()).as_str(), (window_width - 30.), 20., 32., YELLOW);
-
+        editor.draw();
         // Clear screen, go next
         next_frame().await
     }
