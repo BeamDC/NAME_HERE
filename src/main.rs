@@ -1,7 +1,7 @@
 /*
  * Goal:
- * 1. Create a simple text editor for C
- * 2. Create a simple compiler for C
+ * 1. Create a simple text editor for our own language
+ * 2. Create a simple compiler for our own language
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
  */
 
@@ -34,8 +34,7 @@ async fn main() {
     loop {
         draw_text(format!("{}", get_fps()).as_str(), (window_width - 30.), 20., 32., YELLOW);
 
-
-        /// Clear screen, go next
+        // Clear screen, go next
         next_frame().await
     }
 }

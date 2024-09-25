@@ -1,11 +1,10 @@
+use std::fs;
 use std::fs::File;
-use std::io::BufRead;
-
-const BUFFER_SIZE: usize = 8192;
+use std::io::Write;
 
 pub struct Textedit {
     pub file: String,
-    pub buffer: [char; BUFFER_SIZE], // 8KiB buffer, also happens to be the BufReader default size, change to make bigger
+    pub buffer: Vec<u8>, // ascii 0 - 255 only :>
     pub pointer: usize
 }
 
@@ -13,31 +12,21 @@ impl Textedit {
     pub fn new() -> Self {
         Self {
             file: "default.txt".to_owned(),
-            buffer: ['\0'; BUFFER_SIZE],
+            buffer: vec![],
             pointer: 0,
         }
     }
 
-    pub fn read(&mut self) -> std::io::Result<()> {
-        // todo: if new file is selected, overwrite current buffer with nulls before reading
+    pub fn read(&mut self) -> std::io::Result<()>{
+        self.buffer = Vec::new();
+        self.buffer = fs::read(&self.file)?;
+        Ok(())
+    }
 
-        let f = File::open(&self.file)?;
-        let reader = std::io::BufReader::with_capacity(BUFFER_SIZE,f);
-
-        for line in reader.lines() {
-            let line = line?;
-            for (i, c) in line.chars().enumerate() {
-                if self.pointer + i < self.buffer.len() {
-                    self.buffer[self.pointer + i] = c;
-                } else {
-                    break;
-                }
-            }
-            self.pointer += line.chars().count();
-            self.buffer[self.pointer] = '\n';
-            self.pointer += 1;
-        }
-        self.pointer = 0;
+    pub fn write(&mut self) -> std::io::Result<()> {
+        let mut f = File::create(&self.file)?;
+        let contents: &[u8] = &self.buffer;
+        f.write_all(contents)?;
         Ok(())
     }
 }
