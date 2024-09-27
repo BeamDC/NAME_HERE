@@ -3,7 +3,8 @@ use macroquad::input::{get_last_key_pressed, KeyCode};
 use macroquad::text::{draw_text, draw_text_ex, measure_text, Font, TextParams};
 use crate::editor::texteditor::Textedit;
 use std::vec::Vec;
-
+use macroquad::math::clamp;
+use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
 // todo: revamp rendering for text, write chars individually, or by word idk
 // todo: get proper pointer pos on screen
 
@@ -21,7 +22,7 @@ impl EditorGui {
         Self {
             textedit: Textedit::new(),
             font_size: 30.0,
-            indent: 100.0,
+            indent: 100.0, // no sane person writes enough code for this to overlap
             spacing: 1.0,
             vert_gap: 30.0,
             font,
@@ -46,7 +47,7 @@ impl EditorGui {
         };
         self.read_inputs(&binding);
         self.draw_contents(&contents, &params);
-        self.draw_pointer(&contents);
+        self.draw_pointer(&contents, &font);
         self.draw_line_numbers(&contents, &params);
     }
 
@@ -73,9 +74,18 @@ impl EditorGui {
         }
     }
 
-    fn draw_pointer(&mut self, contents: &Vec<&str>) {
-        // draw a pointer (rect with size of char in selected font)
-        // let size = measure_text()
+    fn draw_pointer(&mut self, contents: &Vec<&str>, font: &Font) {
+        // todo: save the pointers pre clamp location
+        // todo: so that the pointer, can jump back to it if it hits a line >= the re clamp size
+        let ptr_size = measure_text("!",Option::from(font), self.font_size.clone() as u16, 1.0);
+        self.textedit.pointer.0 = clamp(self.textedit.pointer.0, 0, contents[self.textedit.pointer.1].len());
+        let ptr_x = self.indent + ptr_size.width * self.textedit.pointer.0 as f32;
+        let ptr_y = self. vert_gap * (self.textedit.pointer.1 + 1) as f32 - ptr_size.offset_y;
+
+        draw_rectangle_lines(ptr_x, ptr_y,
+                             2.0,
+                             ptr_size.height,
+                             2.0, RED);
         println!("{:?}", self.textedit.pointer);
     }
 
@@ -102,13 +112,23 @@ impl EditorGui {
                     self.textedit.pointer.0 -= 1;
                 }
             },
+            KeyCode::Down => {
+                if self.textedit.pointer.1 < contents.chars().filter(|&c| c == '\n').count() {
+                    self.textedit.pointer.1 += 1;
+                }
+            },
+            KeyCode::Up => {
+                if self.textedit.pointer.1 > 0 {
+                    self.textedit.pointer.1 -= 1;
+                }
+            },
             _ => {}
         }
         // solve pointer-y
-        self.textedit.pointer.1 =
-            contents[0..self.textedit.pointer.0]
-                .chars()
-                .filter(|&c| c == '\n')
-                .count();
+        // self.textedit.pointer.1 =
+        //     contents[0..self.textedit.pointer.0]
+        //         .chars()
+        //         .filter(|&c| c == '\n')
+        //         .count();
     }
 }
