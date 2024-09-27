@@ -29,11 +29,15 @@ fn window_conf() -> Conf {
 async fn main() {
     let window_height: f32 = 720.;
     let window_width: f32 = 1280.;
-    let mut editor = EditorGui::new();
+    let editor_font = load_ttf_font("src/assets/VictorMono.ttf")
+        .await
+        .unwrap();
+    let mut editor = EditorGui::new(editor_font);
     loop {
         draw_text(format!("{}", get_fps()).as_str(), (window_width - 30.), 20., 32., YELLOW);
         editor.draw();
         // Clear screen, go next
         next_frame().await
     }
+    // todo: write changes on editor close.
 }

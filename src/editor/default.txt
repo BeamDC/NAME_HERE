@@ -1,15 +1,10 @@
-#####
-#####
-#####
-#####
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+1234567890
+!@#$%^&*()
 
-/*
- * TESTING:
- */
+## TEST ##
 
 fn main() {
-    let x: i32 = 9;
-    let y: i32 = 10;
-    let z: i32 = x + y;
-    println!("x + y = {:?}",z);
+    println!("Hello, World!");
 }
