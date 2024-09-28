@@ -6,7 +6,8 @@ use std::io::Write;
 pub struct Textedit {
     pub file: String,
     pub buffer: Vec<u8>, // ascii 0 - 255 only :>
-    pub pointer: (usize, usize),
+    pub cursor: (usize, usize),
+    pub pointer: usize,
 }
 
 impl Textedit {
@@ -14,7 +15,8 @@ impl Textedit {
         Self {
             file: "src/editor/default.txt".to_owned(),
             buffer: vec![],
-            pointer: (0, 0),
+            cursor: (0, 0),
+            pointer: 0,
         }
     }
 

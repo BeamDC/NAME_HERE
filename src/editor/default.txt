@@ -1,9 +1,4 @@
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
-abcdefghijklmnopqrstuvwxyz
-1234567890
-!@#$%^&*()
-
-## TEST ##
 
 fn main() {
     println!("Hello, World!");
