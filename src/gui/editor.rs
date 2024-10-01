@@ -5,11 +5,12 @@ use crate::editor::texteditor::Textedit;
 use std::vec::Vec;
 use macroquad::math::clamp;
 use macroquad::shapes::{draw_rectangle};
+use crate::gui::input_handler::{parse_inputs};
 // todo: revamp rendering for text, write chars individually, or by word idk
 // todo: get proper cursor pos on screen
 
 pub struct EditorGui {
-    textedit: Textedit,
+    pub textedit: Textedit,
     font_size: f32,
     indent: f32,
     spacing: f32,
@@ -35,7 +36,6 @@ impl EditorGui {
 
     pub fn draw(&mut self) {
         // todo: jump to cursor command / hotkey
-        self.textedit.read().unwrap();
         let binding  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap()
             .replace("\r", "");
@@ -99,54 +99,8 @@ impl EditorGui {
     fn read_inputs(&mut self, contents:  &Vec<&str>) {
         let key = get_last_key_pressed();
         match key {
-            Some(k) => self.parse_inputs(k, contents),
+            Some(k) => parse_inputs(self, k, contents),
             _ => {}
         }
-    }
-
-    fn parse_inputs(&mut self, key: KeyCode, contents: &Vec<&str>) {
-        // remove newlines. to keep consistency with vector version
-        // todo: when cursor is pushed past the line length, wrap to 0 on the next line.
-        let contents_str = contents.join("\n");
-        match key {
-            KeyCode::Right => {
-                if self.textedit.cursor.0 < contents_str.len() {
-                    self.textedit.cursor.0 += 1;
-                }
-            },
-            KeyCode::Left => {
-                if self.textedit.cursor.0 > 0 {
-                    self.textedit.cursor.0 -= 1;
-                }
-            },
-            KeyCode::Down => {
-                if self.textedit.cursor.1 < contents_str.chars().filter(|&c| c == '\n').count() {
-                    self.textedit.cursor.1 += 1;
-                }
-            },
-            KeyCode::Up => {
-                if self.textedit.cursor.1 > 0 {
-                    self.textedit.cursor.1 -= 1;
-                }
-            },
-            KeyCode::A | KeyCode::B => {
-
-            }
-            _ => {}
-        }
-        println!("{:#?}", self.textedit.buffer);
-    }
-
-    fn push_char(&mut self, key: KeyCode) {
-        match key {
-            KeyCode::A => {
-                self.textedit.buffer.insert(self.textedit.pointer, 65);
-            },
-            KeyCode::B => {
-                self.textedit.buffer.insert(self.textedit.pointer, 66);
-            },
-            _ => {}
-        }
-        println!("{:?}", self.textedit.buffer);
     }
 }

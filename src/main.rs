@@ -31,6 +31,7 @@ async fn main() {
         .await
         .unwrap();
     let mut editor = EditorGui::new(editor_font);
+    editor.textedit.read().unwrap();
     loop {
         draw_text(format!("{}", get_fps()).as_str(), screen_width() * 0.75, 20.0, 30.0, YELLOW);
         editor.draw();

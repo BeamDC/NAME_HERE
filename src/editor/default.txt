@@ -1,5 +1,1 @@
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-fn main() {
-    println!("Hello, World!");
-}
+hello, world!
