@@ -1,3 +1,4 @@
+use std::ops::Range;
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::text::{draw_text_ex, measure_text, Font, TextParams};
@@ -36,12 +37,8 @@ impl EditorGui {
 
     pub fn draw(&mut self) {
         // todo: jump to cursor command / hotkey
-        let binding  = String::from_utf8(self.textedit.buffer.clone())
-            .unwrap()
-            .replace("\r", "");
-        let contents: Vec<&str> = binding
-            .split('\n')// split into lines
-            .collect::<Vec<&str>>();
+        let contents  = String::from_utf8(self.textedit.buffer.clone())
+            .unwrap();
 
         let font = self.font.clone();
         let params: TextParams = TextParams {
@@ -57,46 +54,88 @@ impl EditorGui {
         self.draw_cursor(&contents, &font);
         self.draw_line_numbers(&contents, &params);
     }
-
-    fn draw_contents(&mut self, contents: &Vec<&str>, params: &TextParams) {
+    fn draw_contents(&mut self, contents: &str, params: &TextParams, ) {
         // when keyword coloring is added, this will have to change
-        // todo: scrolling
-        let mut gap = self.vert_gap - self.mouse_y;
-        for line in contents {
-            draw_text_ex(line,
-                         self.indent, gap,
-                         params.clone());
-            gap += self.font_size
+        let mut y_offset = self.vert_gap - self.mouse_y;
+        let mut x_offset = self.indent;
+        for char in contents.chars() {
+            if char == '\n' {
+                y_offset += self.font_size;
+                x_offset = self.indent;
+                continue;
+            }
+            if char == '\r' { continue; }
+            let char: &str = &char.to_string();
+            draw_text_ex(char,
+                        x_offset, y_offset,
+                        params.clone());
+            x_offset += measure_text(char, params.font, self.font_size as u16, 1.0).width;
         }
     }
 
-    fn draw_line_numbers(&mut self, contents: &Vec<&str>, params: &TextParams) {
+    fn draw_line_numbers(&mut self, contents: &str, params: &TextParams) {
         let mut y: f32 = self.vert_gap - self.mouse_y;
+        let x = 10.0;
         let mut params = params.clone();
         params.color = GRAY;
-        for i in 1..=contents.len() {
-            draw_text_ex(i.to_string().as_str(),
-                      10.0,y,
-                      params.clone());
-            y += self.font_size;
+        let lines = contents.lines().count();
+        for i in 1..=lines {
+            draw_text_ex(&i.to_string(),
+                         x, y,
+                         params.clone());
+            y += self.vert_gap;
         }
     }
 
-    fn draw_cursor(&mut self, contents: &Vec<&str>, font: &Font) {
+    // fn draw_cursor(&mut self, contents: &Vec<&str>, font: &Font) {
+    //     // todo: save the cursors pre clamp location
+    //     // todo: so that the cursor, can jump back to it if it hits a line >= the re clamp size
+    //     let ptr_size = measure_text("!",Option::from(font), self.font_size.clone() as u16, 1.0);
+    //     let mut max_x = contents[0].len();
+    //     if contents.len() > 1 {
+    //         // this will crash since we split on newlines,
+    //         // so creating a blank line tries to point to a line that hasn't been made yet
+    //         // how fix?
+    //         // push null char?
+    //         max_x = contents[self.textedit.cursor.1].len();
+    //     }
+    //     self.textedit.cursor.0 = clamp(self.textedit.cursor.0, 0, max_x);
+    //     let ptr_x = self.indent + ptr_size.width * self.textedit.cursor.0 as f32;
+    //     let ptr_y = self.font_size * (self.textedit.cursor.1 + 1) as f32 - ptr_size.offset_y - self.mouse_y;
+    //
+    //     draw_rectangle(ptr_x, ptr_y,
+    //                    2.0,
+    //                    ptr_size.height,
+    //                    RED);
+    // }
+
+    fn draw_cursor(&mut self, contents: &str, font: &Font) {
         // todo: save the cursors pre clamp location
         // todo: so that the cursor, can jump back to it if it hits a line >= the re clamp size
-        let ptr_size = measure_text("!",Option::from(font), self.font_size.clone() as u16, 1.0);
-        self.textedit.cursor.0 = clamp(self.textedit.cursor.0, 0, contents[self.textedit.cursor.1].len());
-        let ptr_x = self.indent + ptr_size.width * self.textedit.cursor.0 as f32;
-        let ptr_y = self.font_size * (self.textedit.cursor.1 + 1) as f32 - ptr_size.offset_y - self.mouse_y;
-
-        draw_rectangle(ptr_x, ptr_y,
+        let font_option = Option::from(font);
+        let ptr_size = measure_text("!",font_option, self.font_size.clone() as u16, 1.0);
+        // line breaks before the pointer
+        let lines_before: usize = contents[0..self.textedit.pointer].chars().filter(|&c| c =='\n').count();
+        // length of chars between last line break and the pointer
+        // find first \n before pointer
+        // measure text fromm \n to pointer - 1
+        let range: &str = &contents[
+            contents[0..self.textedit.pointer].rfind('\n').unwrap_or(0)
+            ..self.textedit.pointer];
+        let chars_before: f32 = measure_text(range,
+                                             font_option,
+                                             self.font_size as u16, 1.0).width; // measure_text(char, params.font, self.font_size as u16, 1.0).width
+        println!("{}", contents.as_bytes()[self.textedit.pointer]);
+        let ptr_x: f32 = self.indent + chars_before;
+        let ptr_y: f32 = self.font_size * (lines_before + 1) as f32 - ptr_size.offset_y - self.mouse_y;
+        //self.font_size * (self.textedit.cursor.1 + 1) as f32 - ptr_size.offset_y - self.mouse_y
+        draw_rectangle(ptr_x, ptr_y, // draws starting from what should be bottom.
                        2.0,
                        ptr_size.height,
                        RED);
     }
 
-    fn read_inputs(&mut self, contents:  &Vec<&str>) {
+    fn read_inputs(&mut self, contents:  &str) {
         let key = get_last_key_pressed();
         match key {
             Some(k) => parse_inputs(self, k, contents),

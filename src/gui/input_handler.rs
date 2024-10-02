@@ -2,36 +2,23 @@ use macroquad::input::{is_key_down, KeyCode};
 use crate::editor::texteditor::Textedit;
 use crate::gui::editor::EditorGui;
 
-pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) {
+pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &str) {
     // remove newlines. to keep consistency with vector version
     // todo: when cursor is pushed past the line length, wrap to 0 on the next line.
-    let contents_str = contents.join("\n");
     match key {
         KeyCode::Right => {
-            if editor.textedit.cursor.0 < contents_str.len() {
-                editor.textedit.cursor.0 += 1;
+            if editor.textedit.pointer < contents.len() {
                 editor.textedit.pointer += 1;
             }
+
         },
         KeyCode::Left => {
-            if editor.textedit.cursor.0 > 0 {
-                editor.textedit.cursor.0 -= 1;
+            if editor.textedit.pointer > 0 {
                 editor.textedit.pointer -= 1;
             }
         },
-        KeyCode::Down => {
-            if editor.textedit.cursor.1 < contents_str.chars().filter(|&c| c == '\n').count() {
-                editor.textedit.cursor.1 += 1;
-                // jump ptr to next line, with index after newline
-
-            }
-        },
-        KeyCode::Up => {
-            if editor.textedit.cursor.1 > 0 {
-                editor.textedit.cursor.1 -= 1;
-                // jump ptr to prev line, with index x going to the first pos <= to current x
-            }
-        },
+        KeyCode::Down => {},
+        KeyCode::Up => {},
         KeyCode::Delete => {
             if editor.textedit.buffer.len() > 0 {
                 editor.textedit.buffer.remove(editor.textedit.pointer);
@@ -41,8 +28,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             if editor.textedit.pointer > 0 {
                 editor.textedit.buffer.remove(editor.textedit.pointer - 1);
                 editor.textedit.pointer -= 1;
-                editor.textedit.cursor.0 -= 1;
-                println!("ptr{:?}\ncrsr{:?}",editor.textedit.pointer,editor.textedit.cursor);
             }
         },
         KeyCode::Enter => {
@@ -51,7 +36,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
                 editor.textedit.pointer,
                 ch);
             // todo: properly handle a newline, jump down.
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::A => {
@@ -60,7 +44,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::B => {
@@ -69,7 +52,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::C => {
@@ -78,7 +60,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::D => {
@@ -87,7 +68,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::E => {
@@ -96,7 +76,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::F => {
@@ -105,7 +84,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::G => {
@@ -114,7 +92,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::H => {
@@ -123,7 +100,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::I => {
@@ -132,7 +108,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::J => {
@@ -141,7 +116,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::K => {
@@ -150,7 +124,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::L => {
@@ -159,7 +132,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::M => {
@@ -168,7 +140,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::N => {
@@ -177,7 +148,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::O => {
@@ -186,7 +156,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::P => {
@@ -195,7 +164,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::Q => {
@@ -204,7 +172,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::R => {
@@ -213,7 +180,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::S => {
@@ -222,7 +188,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::T => {
@@ -231,7 +196,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::U => {
@@ -240,7 +204,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::V => {
@@ -249,7 +212,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::W => {
@@ -258,7 +220,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::X => {
@@ -267,7 +228,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::Y => {
@@ -276,7 +236,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         KeyCode::Z => {
@@ -285,7 +244,6 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &Vec<&str>) 
             editor.textedit.buffer.insert(
                 editor.textedit.pointer,
                 ch);
-            editor.textedit.cursor.0 += 1;
             editor.textedit.pointer += 1;
         }
         _ => {}
