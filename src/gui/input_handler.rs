@@ -1,5 +1,4 @@
 use macroquad::input::{is_key_down, KeyCode};
-use crate::editor::texteditor::Textedit;
 use crate::gui::editor::EditorGui;
 
 pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &str) {
@@ -248,7 +247,8 @@ pub fn parse_inputs(editor: &mut EditorGui, key: KeyCode, contents: &str) {
         }
         _ => {}
     }
-
-    // todo: re-sync cursor and pointer, issue below
-    // (pointer likes to got out of bounds when deleting down to 0 chars)
+    // when looking at EOF, take a step back
+    if editor.textedit.pointer > editor.textedit.buffer.len() - 1{
+        editor.textedit.pointer -= 1;
+    }
 }

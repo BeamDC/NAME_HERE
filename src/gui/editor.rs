@@ -7,8 +7,6 @@ use std::vec::Vec;
 use macroquad::math::clamp;
 use macroquad::shapes::{draw_rectangle};
 use crate::gui::input_handler::{parse_inputs};
-// todo: revamp rendering for text, write chars individually, or by word idk
-// todo: get proper cursor pos on screen
 
 pub struct EditorGui {
     pub textedit: Textedit,
@@ -39,7 +37,7 @@ impl EditorGui {
         // todo: jump to cursor command / hotkey
         let contents  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap();
-
+        println!("{} -> {}", self.textedit.pointer, self.textedit.buffer[self.textedit.pointer]);
         let font = self.font.clone();
         let params: TextParams = TextParams {
             font: Option::from(&font),
@@ -59,12 +57,13 @@ impl EditorGui {
         let mut y_offset = self.vert_gap - self.mouse_y;
         let mut x_offset = self.indent;
         for char in contents.chars() {
+            if char == '\0' { break; }
+            if char == '\r' { continue; }
             if char == '\n' {
                 y_offset += self.font_size;
                 x_offset = self.indent;
                 continue;
             }
-            if char == '\r' { continue; }
             let char: &str = &char.to_string();
             draw_text_ex(char,
                         x_offset, y_offset,
@@ -87,28 +86,6 @@ impl EditorGui {
         }
     }
 
-    // fn draw_cursor(&mut self, contents: &Vec<&str>, font: &Font) {
-    //     // todo: save the cursors pre clamp location
-    //     // todo: so that the cursor, can jump back to it if it hits a line >= the re clamp size
-    //     let ptr_size = measure_text("!",Option::from(font), self.font_size.clone() as u16, 1.0);
-    //     let mut max_x = contents[0].len();
-    //     if contents.len() > 1 {
-    //         // this will crash since we split on newlines,
-    //         // so creating a blank line tries to point to a line that hasn't been made yet
-    //         // how fix?
-    //         // push null char?
-    //         max_x = contents[self.textedit.cursor.1].len();
-    //     }
-    //     self.textedit.cursor.0 = clamp(self.textedit.cursor.0, 0, max_x);
-    //     let ptr_x = self.indent + ptr_size.width * self.textedit.cursor.0 as f32;
-    //     let ptr_y = self.font_size * (self.textedit.cursor.1 + 1) as f32 - ptr_size.offset_y - self.mouse_y;
-    //
-    //     draw_rectangle(ptr_x, ptr_y,
-    //                    2.0,
-    //                    ptr_size.height,
-    //                    RED);
-    // }
-
     fn draw_cursor(&mut self, contents: &str, font: &Font) {
         // todo: save the cursors pre clamp location
         // todo: so that the cursor, can jump back to it if it hits a line >= the re clamp size
@@ -119,16 +96,16 @@ impl EditorGui {
         // length of chars between last line break and the pointer
         // find first \n before pointer
         // measure text fromm \n to pointer - 1
-        let range: &str = &contents[
-            contents[0..self.textedit.pointer].rfind('\n').unwrap_or(0)
-            ..self.textedit.pointer];
+        let mut line_start = contents[0..self.textedit.pointer].rfind('\n').unwrap_or(0);
+        if line_start != 0{
+            line_start += 1;
+        }
+        let range: &str = &contents[line_start..self.textedit.pointer];
         let chars_before: f32 = measure_text(range,
                                              font_option,
                                              self.font_size as u16, 1.0).width; // measure_text(char, params.font, self.font_size as u16, 1.0).width
-        println!("{}", contents.as_bytes()[self.textedit.pointer]);
         let ptr_x: f32 = self.indent + chars_before;
         let ptr_y: f32 = self.font_size * (lines_before + 1) as f32 - ptr_size.offset_y - self.mouse_y;
-        //self.font_size * (self.textedit.cursor.1 + 1) as f32 - ptr_size.offset_y - self.mouse_y
         draw_rectangle(ptr_x, ptr_y, // draws starting from what should be bottom.
                        2.0,
                        ptr_size.height,
@@ -137,6 +114,8 @@ impl EditorGui {
 
     fn read_inputs(&mut self, contents:  &str) {
         let key = get_last_key_pressed();
+        // todo: case for if alt is held
+        // todo: case for if ctrl is held
         match key {
             Some(k) => parse_inputs(self, k, contents),
             _ => {}
