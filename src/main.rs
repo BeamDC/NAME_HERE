@@ -5,6 +5,8 @@
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
  */
 
+// get icons (256x256) here https://fonts.google.com/icons?icon.size=64&icon.color=%23e8eaed
+
 mod compiler;
 mod tests;
 mod editor;
@@ -27,7 +29,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let editor_font = load_ttf_font("src/assets/VictorMono.ttf")
+    let editor_font = load_ttf_font("src/assets/fonts/VictorMono.ttf")
         .await
         .unwrap();
     let mut editor = EditorGui::new(editor_font);
@@ -36,7 +38,7 @@ async fn main() {
     // clunky fix, but it works
     editor.textedit.buffer.push(0);
     loop {
-        draw_text(format!("{}", get_fps()).as_str(), screen_width() * 0.75, 20.0, 30.0, YELLOW);
+        // draw_text(format!("{}", get_fps()).as_str(), screen_width() * 0.75, 20.0, 30.0, YELLOW);
         editor.draw();
         // Clear screen, go next
         next_frame().await
