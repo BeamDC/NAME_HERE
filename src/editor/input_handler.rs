@@ -1,6 +1,5 @@
 use macroquad::input::{is_key_down, KeyCode};
 use crate::editor::texteditor::Textedit;
-use crate::gui::editor::EditorGui;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {
@@ -10,8 +9,11 @@ macro_rules! insert_u8 {
     };
 }
 
-pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode) {
+pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode, _contents: &str) {
     match key {
+        KeyCode::S => {
+            editor.write().unwrap();
+        }
         _ => {}
     }
     // when looking at EOF, take a step back
@@ -20,7 +22,7 @@ pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode) {
     }
 }
 
-pub fn parse_alt_inputs(editor: &mut Textedit, key: KeyCode) {
+pub fn parse_alt_inputs(editor: &mut Textedit, key: KeyCode, _contents: &str) {
     match key {
         _ => {}
     }
@@ -42,6 +44,7 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str)
                 editor.pointer -= 1;
             }
         },
+        // todo: when moving down to last line, cursor always jumps to the end.
         KeyCode::Down => {
             let mut ptr = editor.pointer;
             let buffer = &editor.buffer;
@@ -75,6 +78,7 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str)
             // if ptr move crossed 2 newlines, move ptr back two
             editor.pointer = ptr;
         },
+        // todo: make this work :P
         KeyCode::Up => {
             let mut ptr = editor.pointer;
             let buffer = &editor.buffer;
@@ -97,7 +101,6 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str)
             // println!("{} - {} = {}",ptr,start,from_last);
             if end > ptr {
                 println!("OUT OF BOUNDS!");
-                // end = buffer.len() - 1 - ptr;
                 end = 0;
             }
             if buffer[ptr-end..ptr].iter().filter(|&&c| c == 10).count() > 1 {

@@ -16,11 +16,9 @@ macro_rules! render_icon {
             WHITE,
             $params.clone(),
         );
-        $y += 10.0 + $params.dest_size.unwrap().y;
     };
 }
 
-// for the toolbar we will eventually add to the editor.
 pub struct Toolbar {
     pub width: f32,
     pub bg_params: DrawRectangleParams,
@@ -43,17 +41,25 @@ impl Toolbar {
         self.draw_icons();
     }
     pub fn draw_icons(&mut self) {
-        /*
-         * Render icons to the screen as textures
-         */
+        let icon_size = 34.0;
+        let padding = (self.width - icon_size) / 2.0;
+        let mut icon_gap = self.width / 5.0;
         let params = DrawTextureParams {
-            dest_size: Some(Vec2::new(34.0,34.0)),
+            dest_size: Some(Vec2::new(icon_size,icon_size)),
             ..Default::default()
         };
-        let mut y: f32 = 10.0;
-        render_icon!("../../src/assets/icons/file_open.png", 8.0, y, &params);
-        render_icon!("../../src/assets/icons/search.png", 8.0, y, &params);
-        render_icon!("../../src/assets/icons/settings.png", 8.0, y, &params);
-        render_icon!("../../src/assets/icons/icon.png", 8.0, y, &params);
+
+        render_icon!("../../src/assets/icons/file_open.png", padding, icon_gap, &params);
+        icon_gap += self.width / 5.0 + icon_size;
+        render_icon!("../../src/assets/icons/search.png", padding, icon_gap, &params);
+        icon_gap += self.width / 5.0 + icon_size;
+        render_icon!("../../src/assets/icons/settings.png", padding, icon_gap, &params);
+        icon_gap += self.width / 5.0 + icon_size;
+        render_icon!("../../src/assets/icons/icon.png", padding, icon_gap, &params);
+
+        // todo: we need to know when the user clicks an icon.
+        // We can split the toolbar into a grid where each square
+        // is the size and position of an icon.
+        // depending on which square is clicked, do smth
     }
 }

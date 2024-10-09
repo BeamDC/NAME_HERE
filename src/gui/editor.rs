@@ -1,5 +1,5 @@
 use crate::editor::texteditor::Textedit;
-use crate::editor::input_handler::{parse_general_inputs};
+use crate::editor::input_handler::{parse_alt_inputs, parse_control_inputs, parse_general_inputs};
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
@@ -13,9 +13,8 @@ pub struct EditorGui {
     pub toolbar: Toolbar,
     font_size: f32,
     indent: f32,
-    spacing: f32,
     vert_gap: f32,
-    mouse_x: f32,
+    _mouse_x: f32,
     mouse_y: f32,
     font: Font,
 }
@@ -28,9 +27,8 @@ impl EditorGui {
             toolbar: Toolbar::new(),
             font_size,
             indent: font_size * 3.0, // no sane person writes enough code for this to overlap
-            spacing: 1.0,
             vert_gap: 30.0,
-            mouse_x: 0.0,
+            _mouse_x: 0.0,
             mouse_y: 0.0,
             font,
         }
@@ -124,12 +122,15 @@ impl EditorGui {
         match key {
             Some(k) => {
                 if is_key_down(KeyCode::LeftControl) {
-
+                    println!("CTRL");
+                    parse_control_inputs(&mut self.textedit, k, contents)
                 }
-                if is_key_down(KeyCode::LeftAlt) {
-
+                else if is_key_down(KeyCode::LeftAlt) {
+                    println!("ALT");
+                    parse_alt_inputs(&mut self.textedit, k, contents)
                 }
                 else {
+                    println!("GENERAL");
                     parse_general_inputs(&mut self.textedit, k, contents)
                 }
             },

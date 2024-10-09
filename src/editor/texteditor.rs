@@ -24,12 +24,11 @@ impl Textedit {
         Ok(())
     }
 
+    // todo: remove nulls from end, to not save it
     pub fn write(&mut self) -> std::io::Result<()> {
         let mut f = File::create(&self.file)?;
         let contents: &[u8] = &self.buffer;
         f.write_all(contents)?;
         Ok(())
     }
-
-
 }
