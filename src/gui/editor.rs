@@ -36,6 +36,8 @@ impl EditorGui {
 
     pub fn draw(&mut self) {
         // todo: jump to cursor command / hotkey
+        self.read_inputs();
+
         let contents  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap();
         let font = self.font.clone();
@@ -46,8 +48,8 @@ impl EditorGui {
             ..Default::default()
         };
         self.mouse_y -= mouse_wheel().1;
-        self.mouse_y = clamp(self.mouse_y, 0.0,1.0e6);
-        self.read_inputs(&contents);
+        self.mouse_y = clamp(self.mouse_y, 0.0,1.0e6); // max of a million lines rn
+
         self.draw_contents(&contents, &params);
         self.draw_cursor(&contents, &font);
         self.draw_line_numbers(&contents, &params);
@@ -95,11 +97,11 @@ impl EditorGui {
         let font_option = Option::from(font);
         let ptr_size = measure_text("!",font_option, self.font_size.clone() as u16, 1.0);
         // line breaks before the pointer
-        let lines_before: usize = contents[0..self.textedit.pointer].chars().filter(|&c| c =='\n').count();
+        let lines_before: usize = contents[..self.textedit.pointer].chars().filter(|&c| c =='\n').count();
         // length of chars between last line break and the pointer
         // find first \n before pointer
-        // measure text fromm \n to pointer - 1
-        let mut line_start = contents[0..self.textedit.pointer].rfind('\n').unwrap_or(0);
+        // measure text from \n to pointer - 1
+        let mut line_start = contents[..self.textedit.pointer].rfind('\n').unwrap_or(0);
         if line_start != 0{
             line_start += 1;
         }
@@ -115,23 +117,18 @@ impl EditorGui {
                        RED);
     }
 
-    fn read_inputs(&mut self, contents:  &str) {
+    fn read_inputs(&mut self) {
         let key = get_last_key_pressed();
-        // todo: case for if alt is held
-        // todo: case for if ctrl is held
         match key {
             Some(k) => {
                 if is_key_down(KeyCode::LeftControl) {
-                    println!("CTRL");
-                    parse_control_inputs(&mut self.textedit, k, contents)
+                    parse_control_inputs(&mut self.textedit, k)
                 }
                 else if is_key_down(KeyCode::LeftAlt) {
-                    println!("ALT");
-                    parse_alt_inputs(&mut self.textedit, k, contents)
+                    parse_alt_inputs(&mut self.textedit, k)
                 }
                 else {
-                    println!("GENERAL");
-                    parse_general_inputs(&mut self.textedit, k, contents)
+                    parse_general_inputs(&mut self.textedit, k)
                 }
             },
             _ => {}

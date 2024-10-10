@@ -1,19 +1,34 @@
+use std::cmp::max;
 use macroquad::input::{is_key_down, KeyCode};
 use crate::editor::texteditor::Textedit;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {
-        $e2.buffer.insert(
-                $e2.pointer,
-                $e1);
+        $e2.buffer.insert($e2.pointer, $e1);
     };
 }
 
-pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode, _contents: &str) {
+pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode) {
     match key {
-        KeyCode::S => {
+        KeyCode::S => { // save the editor contents to the open file
             editor.write().unwrap();
-        }
+        },
+        KeyCode::D => { // duplicate the current line : WIP
+            let ptr = editor.pointer;
+            let buffer = &editor.buffer.clone();
+            let line_start = buffer[..ptr]
+                .iter()
+                .rposition(|&c| c == b'\n')
+                .unwrap_or(0);
+            let line_end = buffer[ptr..]
+                .iter()
+                .position(|&c| c == 10)
+                .unwrap_or(buffer.len() - 1);
+            let line = &buffer[line_start..line_end];
+            println!("{:?}", line);
+            editor.buffer.insert(line_end, 10);
+            editor.buffer.splice(line_end+1..line_end+1, line.iter().cloned());
+        },
         _ => {}
     }
     // when looking at EOF, take a step back
@@ -22,7 +37,7 @@ pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode, _contents: &str
     }
 }
 
-pub fn parse_alt_inputs(editor: &mut Textedit, key: KeyCode, _contents: &str) {
+pub fn parse_alt_inputs(editor: &mut Textedit, key: KeyCode) {
     match key {
         _ => {}
     }
@@ -32,10 +47,10 @@ pub fn parse_alt_inputs(editor: &mut Textedit, key: KeyCode, _contents: &str) {
     }
 }
 
-pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str) {
+pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode) {
     match key {
         KeyCode::Right => {
-            if editor.pointer < contents.len() {
+            if editor.pointer < editor.buffer.len() - 1 {
                 editor.pointer += 1;
             }
         },
@@ -49,11 +64,10 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str)
             let mut ptr = editor.pointer;
             let buffer = &editor.buffer;
             // pos of start of current line (last \n passed)
-            let mut start: usize = buffer[0..ptr].len() -
-                buffer[0..ptr]
+            let mut start: usize = buffer[..ptr].len() -
+                buffer[..ptr]
                 .iter()
-                .rev()
-                .position(|&x| x == 10)
+                .rposition(|&x| x == 10)
                 .unwrap_or(0);
             if start == buffer[0..ptr].len() { start = 0; }
             // distance from current line start to ptr
@@ -65,50 +79,41 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str)
                 .unwrap_or(0)
                 + from_last
                 + 1; // off by one :)
-            // println!("{} - {} = {}",ptr,start,from_last);
             if ptr+end >= buffer.len() {
-                println!("OUT OF BOUNDS!");
+                // println!("OUT OF BOUNDS!");
                 end = buffer.len() - 1 - ptr;
             }
             if buffer[ptr..ptr+end].iter().filter(|&&c| c == 10).count() > 1 {
-                println!("MULTILINE LINE CROSS!");
+                // println!("MULTILINE LINE CROSS!");
                 end = buffer[ptr..ptr+end].iter().position(|&x| x == 10).unwrap();
             }
             ptr += end;
             // if ptr move crossed 2 newlines, move ptr back two
             editor.pointer = ptr;
         },
-        // todo: make this work :P
         KeyCode::Up => {
-            let mut ptr = editor.pointer;
             let buffer = &editor.buffer;
-            // pos of start of current line (last \n passed)
-            let mut start: usize = buffer[0..ptr].len() -
-                buffer[0..ptr]
-                    .iter()
-                    .rev()
-                    .position(|&x| x == 10)
-                    .unwrap_or(0);
-            if start == buffer[0..ptr].len() { start = 0; }
-            // distance from current line start to ptr
-            let from_last = buffer[start..ptr].len();
-            // dist to prev newline
-            let mut end = buffer[0..ptr]
+            let current_line_start = buffer[..editor.pointer]
                 .iter()
-                .position(|&x| x == 10)
-                .unwrap_or(0)
-                + from_last; // off by one :)
-            // println!("{} - {} = {}",ptr,start,from_last);
-            if end > ptr {
-                println!("OUT OF BOUNDS!");
-                end = 0;
-            }
-            if buffer[ptr-end..ptr].iter().filter(|&&c| c == 10).count() > 1 {
-                println!("MULTILINE LINE CROSS!");
-                end = buffer[ptr-end..ptr].iter().position(|&x| x == 10).unwrap();
-            }
-            ptr -= end;
-            editor.pointer = ptr;
+                .rposition(|&x| x == b'\n')
+                .map(|pos| pos + 1)
+                .unwrap_or(1);
+
+            let prev_line_start = buffer[..current_line_start - 1]
+                    .iter()
+                    .rposition(|&x| x == b'\n')
+                    .map(|pos| pos + 1)
+                    .unwrap_or(0);
+
+            let current_column = max(editor.pointer, 1) - current_line_start;
+            let prev_line_length = current_line_start - prev_line_start - 1;
+            let new_position = if current_column <= prev_line_length {
+                prev_line_start + current_column
+            } else {
+                current_line_start - 1
+            };
+
+            editor.pointer = new_position;
         },
 
         KeyCode::Delete => {
@@ -140,8 +145,8 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode, contents: &str)
             insert_u8!(ch, editor);
             insert_u8!(ch, editor);
             editor.pointer += 4;
+            println!("ptr: {}\nlen: {}", editor.pointer, editor.buffer.len());
         },
-
 
         // numbers :(
         KeyCode::Key0 => {
