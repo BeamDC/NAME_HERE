@@ -7,6 +7,7 @@ use macroquad::prelude::is_key_down;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text_ex, measure_text, Font, TextParams};
 use crate::gui::toolbar::Toolbar;
+use crate::compiler::lexer::tokenize;
 
 pub struct EditorGui {
     pub textedit: Textedit,
@@ -40,6 +41,10 @@ impl EditorGui {
 
         let contents  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap();
+        // TODO: THIS !!!!!!!
+        let tokens = tokenize(&contents);
+        // TODO: THIS !!!!!!!
+
         let font = self.font.clone();
         let params: TextParams = TextParams {
             font: Option::from(&font),

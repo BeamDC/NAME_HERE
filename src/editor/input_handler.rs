@@ -24,10 +24,13 @@ pub fn parse_control_inputs(editor: &mut Textedit, key: KeyCode) {
                 .iter()
                 .position(|&c| c == 10)
                 .unwrap_or(buffer.len() - 1);
+
+            println!("start:{}\nend:{}\nbuf:{}", line_start, line_end, buffer.len());
             let line = &buffer[line_start..line_end];
             println!("{:?}", line);
             editor.buffer.insert(line_end, 10);
             editor.buffer.splice(line_end+1..line_end+1, line.iter().cloned());
+            editor.pointer += line.len();
         },
         _ => {}
     }
