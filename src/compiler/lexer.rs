@@ -14,7 +14,7 @@ const KEYWORDS: [&str; 8] = [
 
 ];
 
-enum TokenType {
+enum Token {
     Keyword(Vec<char>),
     Ident(Vec<char>),
     String(Vec<char>),
@@ -26,11 +26,7 @@ enum TokenType {
     Rcurly(char),
     Langled(char),
     Rangled(char),
-}
-
-pub struct Token<'a> {
-    value: &'a str,
-    species: TokenType, // 'type' didn't work, so I found a synonym
+    EOF(char),
 }
 
 pub struct Lexer<'a> {
@@ -48,12 +44,22 @@ impl Lexer {
         }
     }
 
-    pub fn read_next(&self) {
-        // todo: get the next token and set it as the current.
+    pub fn read_next(&mut self) {
+        self.current = self.chars.next();
     }
 
-    pub fn match_next(&self){
-        // todo: get the next token and match it to its type
+    pub fn match_next(&self) -> Token {
+        let tok: Token;
+        match self.current.unwrap_or((0usize, '\0')) { // (usize, char) is the char and its position
+            (_,'(') => {tok = Token::Lparen('(')}
+            (_,')') => {tok = Token::Rparen(')')}
+            (_,'[') => {tok = Token::Lsquare('[')}
+            (_,']') => {tok = Token::Rsquare(']')}
+            (_,'<') => {tok = Token::Langled('<')}
+            (_,'>') => {tok = Token::Langled('>')}
+            _ => {tok = Token::EOF('\0')},
+        }
+        tok
     }
 }
 
