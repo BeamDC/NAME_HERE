@@ -10,8 +10,9 @@
 use std::iter::Peekable;
 use std::str::CharIndices;
 
+//TODO: make look up tables for importnant chars (numbers, symbols, operators, etc)
 const KEYWORDS: [&str; 8] = [
-    "return", "if", "else", "for", "while", "bool", "false", "true"
+    "return","if","else","for","while","bool","false","true"
 ];
 
 const WHITESPACE: [char; 4] = [' ', '\t', '\n', '\r'];
