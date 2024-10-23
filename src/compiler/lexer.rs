@@ -46,6 +46,8 @@ impl Lexer {
 
     pub fn read_next(&mut self) {
         self.current = self.chars.next();
+
+        // check if were looking at an identifier
     }
 
     pub fn match_next(&self) -> Token {
