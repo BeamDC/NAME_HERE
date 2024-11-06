@@ -42,7 +42,7 @@ impl EditorGui {
         let contents  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap();
         // TODO: THIS !!!!!!!
-        let tokens = tokenize(&contents);
+        // let tokens = tokenize(&contents);
         // TODO: THIS !!!!!!!
 
         let font = self.font.clone();
