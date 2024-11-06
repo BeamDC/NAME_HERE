@@ -108,5 +108,6 @@ impl Lexer<'_> {
 
 pub fn tokenize(contents: &String) -> Vec<Token> {
     let mut tokens: Vec<Token> = vec![];
+    // TODO, tokenize
     tokens
 }
