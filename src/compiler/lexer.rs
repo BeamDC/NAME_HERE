@@ -10,12 +10,28 @@
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-//TODO: make look up tables for importnant chars (numbers, symbols, operators, etc)
+// Lookup tables
+const fn make_lut(chars: &str) -> [bool; 256] {
+    let mut lut = [false; 256];
+    let bytes = chars.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        lut[bytes[i] as usize] = true;
+        i += 1;
+    }
+    lut
+}
+
+const WHITESPACE: [bool; 256] = make_lut(" \t\n\r");
+const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
+const REAL_DIGITS: [bool; 256] = make_lut(".0123456789");
+const OPERATORS: [bool; 256] = make_lut("$%^&*+-=#@?|`/\\<>~");
+const IDENT_CHARS: [bool; 256] = make_lut(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890"
+);
 const KEYWORDS: [&str; 8] = [
     "return","if","else","for","while","bool","false","true"
 ];
-
-const WHITESPACE: [char; 4] = [' ', '\t', '\n', '\r'];
 
 pub enum Token {
     Keyword(Vec<char>),
@@ -68,11 +84,6 @@ impl Lexer<'_> {
         // if it is whitespace, match and return.
         // if first char is number, looking at numeric literal
         // if it's a quote it's a string, read until next quote or eof
-        if WHITESPACE.iter().any(|&i| i == self.chars.peek()
-            .unwrap_or(&(0usize, '\0'))
-            .1) {
-
-        }
 
         match self.current.unwrap_or((0usize, '\0')) { // (usize, char) is the char and its position
             (_,'+') => {tok = Token::Plus('+')}
