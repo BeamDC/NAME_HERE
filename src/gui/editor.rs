@@ -1,5 +1,5 @@
 use crate::editor::texteditor::Textedit;
-use crate::editor::input_handler::{parse_alt_inputs, parse_control_inputs, parse_general_inputs};
+use crate::editor::input_handler::{parse_alt_inputs, parse_control_inputs, parse_general_inputs, parse_shift_inputs};
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
@@ -126,7 +126,10 @@ impl EditorGui {
         let key = get_last_key_pressed();
         match key {
             Some(k) => {
-                if is_key_down(KeyCode::LeftControl) {
+                if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
+                    parse_shift_inputs(&mut self.textedit, k)
+                }
+                else if is_key_down(KeyCode::LeftControl) {
                     parse_control_inputs(&mut self.textedit, k)
                 }
                 else if is_key_down(KeyCode::LeftAlt) {

@@ -24,11 +24,15 @@ impl Textedit {
         Ok(())
     }
 
-    // todo: remove nulls from end, to not save it
     pub fn write(&mut self) -> std::io::Result<()> {
         let mut f = File::create(&self.file)?;
         let contents: &[u8] = &self.buffer;
-        f.write_all(contents)?;
+        let stripped = if contents[contents.len() - 1] == b'\0' {
+            &contents[0..contents.len() - 1]
+        }else{
+            contents
+        };
+        f.write_all(stripped)?;
         Ok(())
     }
 }

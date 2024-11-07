@@ -1,5 +1,5 @@
 use std::cmp::max;
-use macroquad::input::{is_key_down, KeyCode};
+use macroquad::input::{KeyCode};
 use crate::editor::texteditor::Textedit;
 
 macro_rules! insert_u8 {
@@ -46,6 +46,193 @@ pub fn parse_alt_inputs(editor: &mut Textedit, key: KeyCode) {
     }
     // when looking at EOF, take a step back
     if editor.pointer > editor.buffer.len() - 1{
+        editor.pointer -= 1;
+    }
+}
+
+pub fn parse_shift_inputs(editor: &mut Textedit, key: KeyCode) {
+    match key {
+        // TODO: this is for selection
+        // KeyCode::Right => {
+        // },
+        // KeyCode::Left => {
+        // },
+        // KeyCode::Down => {
+        // },
+        // KeyCode::Up => {
+        // },
+
+        // numbers :(
+        KeyCode::Key0 => {
+            let ch: u8 = 41;
+            // if next is ), then dont add, just move ptr
+            let next = editor.pointer + 1;
+            if next < editor.buffer.len() && !editor.buffer[next] == 41{
+                insert_u8!(ch, editor);
+            }
+            editor.pointer += 1;
+        },
+        KeyCode::Key1 => {
+            let ch: u8 = 33;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key2 => {
+            let ch: u8 = 64;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key3 => {
+            let ch: u8 = 35;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key4 => {
+            let ch: u8 = 36;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key5 => {
+            let ch: u8 = 37;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key6 => {
+            let ch: u8 = 94;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key7 => {
+            let ch: u8 = 38;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key8 => {
+            let ch: u8 = 42;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Key9 => {
+            let ch: u8 = 40;
+            // when starting parenthesis, if there is no closing to match, add a closer
+            // if [ptr..end] does not have a closer before the next open paren
+            let closed = editor.buffer[editor.pointer..editor.buffer.len()-1]
+                .iter()
+                .filter(|&c| *c == 41)
+                .count();
+            let open = editor.buffer[0..editor.pointer]
+                .iter()
+                .filter(|&c| *c == 40)
+                .count();
+            let needs_close: bool = open >= closed;
+
+            if needs_close{
+                insert_u8!(41, editor);
+            }
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+
+        // letters :(
+        KeyCode::A | KeyCode::B | KeyCode::C |
+            KeyCode::D | KeyCode::E | KeyCode::F |
+            KeyCode::G | KeyCode::H | KeyCode::I |
+            KeyCode::J | KeyCode::K | KeyCode::L |
+            KeyCode::M | KeyCode::N | KeyCode::O |
+            KeyCode::P | KeyCode::Q | KeyCode::R |
+            KeyCode::S | KeyCode::T | KeyCode::U |
+            KeyCode::V | KeyCode::W | KeyCode::X |
+            KeyCode::Y | KeyCode::Z
+        => {
+            let ch: u8 =  key as u16 as u8;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+
+        // other important chars
+        KeyCode::Minus => {
+            let ch: u8 = 95;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Equal => {
+            let ch: u8 = 43;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::LeftBracket => {
+            let ch: u8 = 123;
+            let closed = editor.buffer[editor.pointer..editor.buffer.len()-1]
+                .iter()
+                .filter(|&c| *c == 125)
+                .count();
+            let open = editor.buffer[0..editor.pointer]
+                .iter()
+                .filter(|&c| *c == 123)
+                .count();
+            let needs_close: bool = open >= closed;
+            if needs_close{
+                insert_u8!(125, editor);
+            }
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::RightBracket => {
+            let ch: u8 = 125;
+            let next = editor.pointer + 1;
+            if next < editor.buffer.len() && !editor.buffer[next] == 125{
+                insert_u8!(ch, editor);
+            }
+            editor.pointer += 1;
+        },
+        KeyCode::Backslash => {
+            let ch: u8 =  124;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        }
+        KeyCode::Semicolon => {
+            let ch: u8 =  58;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Apostrophe => {
+            let ch: u8 = 34;
+            let closed = editor.buffer[editor.pointer..editor.buffer.len()-1]
+                .iter()
+                .filter(|&c| *c == 34)
+                .count();
+            let open = editor.buffer[0..editor.pointer]
+                .iter()
+                .filter(|&c| *c == 34)
+                .count();
+            let needs_close: bool = open >= closed;
+            if needs_close{
+                insert_u8!(34, editor);
+            }
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Comma => {
+            let ch: u8 = 60;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Period => {
+            let ch: u8 = 62;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        KeyCode::Slash => {
+            let ch: u8 = 63;
+            insert_u8!(ch, editor);
+            editor.pointer += 1;
+        },
+        _ => {}
+    }
+
+    // when looking at EOF, take a step back
+    if editor.pointer >= editor.buffer.len() &&
+        editor.buffer.len() != 0{
         editor.pointer -= 1;
     }
 }
@@ -148,67 +335,56 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode) {
             insert_u8!(ch, editor);
             insert_u8!(ch, editor);
             editor.pointer += 4;
-            println!("ptr: {}\nlen: {}", editor.pointer, editor.buffer.len());
         },
 
         // numbers :(
         KeyCode::Key0 => {
-            let mut ch: u8 =  48;
-            if is_key_down(KeyCode::LeftShift) { ch = 41; }
+            let ch: u8 =  48;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key1 => {
-            let mut ch: u8 =  49;
-            if is_key_down(KeyCode::LeftShift) { ch = 33; }
+            let ch: u8 =  49;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key2 => {
-            let mut ch: u8 =  50;
-            if is_key_down(KeyCode::LeftShift) { ch = 64; }
+            let ch: u8 =  50;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key3 => {
-            let mut ch: u8 =  51;
-            if is_key_down(KeyCode::LeftShift) { ch = 35; }
+            let ch: u8 =  51;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key4 => {
-            let mut ch: u8 =  52;
-            if is_key_down(KeyCode::LeftShift) { ch = 36; }
+            let ch: u8 =  52;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key5 => {
-            let mut ch: u8 =  53;
-            if is_key_down(KeyCode::LeftShift) { ch = 37; }
+            let ch: u8 =  53;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key6 => {
-            let mut ch: u8 = 54;
-            if is_key_down(KeyCode::LeftShift) { ch = 94; }
+            let ch: u8 = 54;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key7 => {
-            let mut ch: u8 = 55;
-            if is_key_down(KeyCode::LeftShift) { ch = 38; }
+            let ch: u8 = 55;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key8 => {
-            let mut ch: u8 = 56;
-            if is_key_down(KeyCode::LeftShift) { ch = 42; }
+            let ch: u8 = 56;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Key9 => {
-            let mut ch: u8 = 57;
-            if is_key_down(KeyCode::LeftShift) { ch = 40; }
+            let ch: u8 = 57;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
@@ -224,70 +400,86 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode) {
             KeyCode::V | KeyCode::W | KeyCode::X |
             KeyCode::Y | KeyCode::Z
         => {
-            let mut ch: u8 =  (key as u16 as u8) | 1<<5;
-            if is_key_down(KeyCode::LeftShift) { ch ^= 1<<5; } // this makes me look smart
+            let ch: u8 =  (key as u16 as u8) | 1<<5;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
 
         // other important chars
         KeyCode::Minus => {
-            let mut ch: u8 = 45;
-            if is_key_down(KeyCode::LeftShift) { ch = 95; }
+            let ch: u8 = 45;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Equal => {
-            let mut ch: u8 = 61;
-            if is_key_down(KeyCode::LeftShift) { ch = 43; }
+            let ch: u8 = 61;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::LeftBracket => {
-            let mut ch: u8 = 91;
-            if is_key_down(KeyCode::LeftShift) { ch ^= 1<<5; }
+            let ch: u8 = 91;
+            let closed = editor.buffer[editor.pointer..editor.buffer.len()-1]
+                .iter()
+                .filter(|&c| *c == ch)
+                .count();
+            let open = editor.buffer[0..editor.pointer]
+                .iter()
+                .filter(|&c| *c == 93)
+                .count();
+            let needs_close: bool = open >= closed;
+            if needs_close{
+                insert_u8!(93, editor);
+            }
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::RightBracket => {
-            let mut ch: u8 = 93;
-            if is_key_down(KeyCode::LeftShift) { ch ^= 1<<5; }
-            insert_u8!(ch, editor);
+            let ch: u8 = 93;
+            let next = editor.pointer + 1;
+            if next < editor.buffer.len() && !editor.buffer[next] == 93{
+                insert_u8!(ch, editor);
+            }
             editor.pointer += 1;
         },
         KeyCode::Backslash => {
-            let mut ch: u8 =  92;
-            if is_key_down(KeyCode::LeftShift) { ch ^= 1<<5; }
+            let ch: u8 = 92;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         }
         KeyCode::Semicolon => {
-            let mut ch: u8 =  59;
-            if is_key_down(KeyCode::LeftShift) { ch = 58; }
+            let ch: u8 = 59;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Apostrophe => {
-            let mut ch: u8 = 39;
-            if is_key_down(KeyCode::LeftShift) { ch = 34; }
+            let ch: u8 = 39;
+            let closed = editor.buffer[editor.pointer..editor.buffer.len()-1]
+                .iter()
+                .filter(|&c| *c == 39)
+                .count();
+            let open = editor.buffer[0..editor.pointer]
+                .iter()
+                .filter(|&c| *c == 39)
+                .count();
+            let needs_close: bool = open >= closed;
+            if needs_close{
+                insert_u8!(39, editor);
+            }
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Comma => {
-            let mut ch: u8 = 44;
-            if is_key_down(KeyCode::LeftShift) { ch = 60; }
+            let ch: u8 = 44;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Period => {
-            let mut ch: u8 = 46;
-            if is_key_down(KeyCode::LeftShift) { ch = 62; }
+            let ch: u8 = 46;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
         KeyCode::Slash => {
-            let mut ch: u8 = 47;
-            if is_key_down(KeyCode::LeftShift) { ch = 63; }
+            let ch: u8 = 47;
             insert_u8!(ch, editor);
             editor.pointer += 1;
         },
