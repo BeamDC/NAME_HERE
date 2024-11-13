@@ -492,3 +492,13 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode) {
         editor.pointer -= 1;
     }
 }
+
+pub fn mouse_input_left(editor: &mut Textedit, (x,y): (f32, f32)) {
+    // todo!(handle mouse inputs, on click pass this function the coords);
+    println!("LEFT MOUSE PRESSED @ ({x}, {y})");
+}
+
+pub fn mouse_input_right(editor: &mut Textedit, (x,y): (f32, f32)) {
+    // todo!(handle mouse inputs, on click pass this function the coords);
+    println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
+}

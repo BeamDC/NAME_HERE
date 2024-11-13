@@ -1,7 +1,7 @@
 use crate::editor::texteditor::Textedit;
-use crate::editor::input_handler::{parse_alt_inputs, parse_control_inputs, parse_general_inputs, parse_shift_inputs};
+use crate::editor::input_handler::{mouse_input_left, mouse_input_right, parse_alt_inputs, parse_control_inputs, parse_general_inputs, parse_shift_inputs};
 use macroquad::color::{GRAY, RED, WHITE};
-use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
+use macroquad::input::{get_last_key_pressed, is_mouse_button_down, is_mouse_button_pressed, mouse_position, mouse_wheel, KeyCode, MouseButton};
 use macroquad::math::clamp;
 use macroquad::prelude::is_key_down;
 use macroquad::shapes::draw_rectangle;
@@ -16,7 +16,7 @@ pub struct EditorGui {
     indent: f32,
     vert_gap: f32,
     _mouse_x: f32,
-    mouse_y: f32,
+    mouse_wheel_y: f32,
     font: Font,
 }
 
@@ -30,7 +30,7 @@ impl EditorGui {
             indent: font_size * 3.0, // no sane person writes enough code for this to overlap
             vert_gap: 30.0,
             _mouse_x: 0.0,
-            mouse_y: 0.0,
+            mouse_wheel_y: 0.0,
             font,
         }
     }
@@ -52,8 +52,8 @@ impl EditorGui {
             color: WHITE,
             ..Default::default()
         };
-        self.mouse_y -= mouse_wheel().1;
-        self.mouse_y = clamp(self.mouse_y, 0.0,1.0e6); // max of a million lines rn
+        self.mouse_wheel_y -= mouse_wheel().1;
+        self.mouse_wheel_y = clamp(self.mouse_wheel_y, 0.0, f32::MAX);
 
         self.draw_contents(&contents, &params);
         self.draw_cursor(&contents, &font);
@@ -64,7 +64,7 @@ impl EditorGui {
     }
     fn draw_contents(&mut self, contents: &str, params: &TextParams, ) {
         // when keyword coloring is added, this will have to change
-        let mut y_offset = self.vert_gap - self.mouse_y;
+        let mut y_offset = self.vert_gap - self.mouse_wheel_y;
         let mut x_offset = self.indent + self.toolbar.width;
         for char in contents.chars() {
             if char == '\0' { break; }
@@ -83,7 +83,7 @@ impl EditorGui {
     }
 
     fn draw_line_numbers(&mut self, contents: &str, params: &TextParams) {
-        let mut y: f32 = self.vert_gap - self.mouse_y;
+        let mut y: f32 = self.vert_gap - self.mouse_wheel_y;
         let x = self.indent / 2.0 - self.font_size + self.toolbar.width;
         let mut params = params.clone();
         params.color = GRAY;
@@ -115,7 +115,7 @@ impl EditorGui {
                                              font_option,
                                              self.font_size as u16, 1.0).width; // measure_text(char, params.font, self.font_size as u16, 1.0).width
         let ptr_x: f32 = self.indent + self.toolbar.width + chars_before;
-        let ptr_y: f32 = self.font_size * (lines_before + 1) as f32 - ptr_size.offset_y - self.mouse_y;
+        let ptr_y: f32 = self.font_size * (lines_before + 1) as f32 - ptr_size.offset_y - self.mouse_wheel_y;
         draw_rectangle(ptr_x, ptr_y, // draws starting from what should be bottom.
                        2.0,
                        ptr_size.height,
@@ -138,8 +138,17 @@ impl EditorGui {
                 else {
                     parse_general_inputs(&mut self.textedit, k)
                 }
+                return
             },
             _ => {}
+        }
+        // check mouse inputs
+        let mouse_pos = mouse_position();
+        // there's probably a way to avoid these if statements
+        if is_mouse_button_pressed(MouseButton::Left){
+            mouse_input_left(&mut self.textedit, mouse_pos);
+        } else if is_mouse_button_pressed(MouseButton::Right){
+            mouse_input_right(&mut self.textedit, mouse_pos);
         }
     }
 }
