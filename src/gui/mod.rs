@@ -1,4 +1,5 @@
 pub(crate)mod editor;
 pub(crate)mod toolbar;
+pub(crate)mod settings;
 
-// make global gui manager, that can switch between guis.
+// todo: make global gui manager, that can switch between guis.

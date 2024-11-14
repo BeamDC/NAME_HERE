@@ -16,11 +16,12 @@ pub struct EditorGui {
     pub textedit: Textedit,
     pub toolbar: Toolbar,
     font_size: f32,
+    font: Font,
     indent: f32,
     vert_gap: f32,
     _mouse_wheel_x: f32,
     mouse_wheel_y: f32,
-    font: Font,
+
 }
 
 impl EditorGui {
@@ -30,11 +31,11 @@ impl EditorGui {
             textedit: Textedit::new(),
             toolbar: Toolbar::new(),
             font_size,
+            font,
             indent: font_size * 3.0,
             vert_gap: 30.0,
             _mouse_wheel_x: 0.0, // this can help with trackpad support!
             mouse_wheel_y: 0.0,
-            font,
         }
     }
 

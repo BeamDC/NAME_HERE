@@ -1,3 +1,5 @@
+// im so sorry this is unreadable.
+
 use macroquad::color::Color;
 use macroquad::input::mouse_position;
 use macroquad::math::Vec2;
@@ -73,7 +75,7 @@ impl Toolbar {
 
     pub fn draw(&mut self) {
         draw_rectangle_ex(0.0, 0.0, self.width, screen_height(), self.bg_params.clone());
-        self.draw_icons(false);
+        self.draw_icons(true);
     }
 
     pub fn draw_icons(&mut self, bounding: bool) {
@@ -133,8 +135,8 @@ impl Toolbar {
                     position.y,
                     self.icon_size,
                     self.icon_size,
-                    1.0,
-                    Color::new(1.0, 1.0, 1.0, 0.3),
+                    2.0,
+                    Color::from_rgba(255,0,0,127),
                 );
             }
         }
