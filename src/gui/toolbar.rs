@@ -44,6 +44,7 @@ pub enum Icons {
     Icon,
 }
 
+#[derive(Clone)]
 pub struct Toolbar {
     pub width: f32,
     pub icon_size: f32,

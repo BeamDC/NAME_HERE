@@ -2,7 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct Textedit {
     pub file: String,
     pub buffer: Vec<u8>, // ascii 0 - 255 only :>

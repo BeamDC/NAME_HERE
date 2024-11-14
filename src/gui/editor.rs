@@ -1,7 +1,5 @@
 use crate::editor::texteditor::Textedit;
-use crate::editor::input_handler::{mouse_input_left, mouse_input_right,
-                                   parse_alt_inputs, parse_control_inputs,
-                                   parse_general_inputs, parse_shift_inputs};
+use crate::traits::input_handler::{GlobalInputHandle};
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, is_mouse_button_pressed,
                        mouse_position, mouse_wheel, KeyCode, MouseButton};
@@ -12,6 +10,7 @@ use macroquad::text::{draw_text_ex, measure_text, Font, TextParams};
 use crate::gui::toolbar::Toolbar;
 use crate::compiler::lexer::tokenize;
 
+#[derive(Clone)]
 pub struct EditorGui {
     pub textedit: Textedit,
     pub toolbar: Toolbar,
@@ -21,7 +20,7 @@ pub struct EditorGui {
     vert_gap: f32,
     _mouse_wheel_x: f32,
     mouse_wheel_y: f32,
-
+    key: Option<KeyCode>,
 }
 
 impl EditorGui {
@@ -36,6 +35,7 @@ impl EditorGui {
             vert_gap: 30.0,
             _mouse_wheel_x: 0.0, // this can help with trackpad support!
             mouse_wheel_y: 0.0,
+            key: None,
         }
     }
 
@@ -128,33 +128,15 @@ impl EditorGui {
 
     fn read_inputs(&mut self) {
         let key = get_last_key_pressed();
-        match key {
-            Some(k) => {
-                if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
-                    parse_shift_inputs(&mut self.textedit, k)
-                }
-                else if is_key_down(KeyCode::LeftControl) {
-                    parse_control_inputs(&mut self.textedit, k)
-                }
-                else if is_key_down(KeyCode::LeftAlt) {
-                    parse_alt_inputs(&mut self.textedit, k)
-                }
-                else {
-                    parse_general_inputs(&mut self.textedit, k)
-                }
-                return
-            },
-            _ => {}
-        }
-
-        // check mouse inputs
-        let mouse_pos = mouse_position();
-
-        // there's probably a way to avoid these if statements
-        if is_mouse_button_pressed(MouseButton::Left){
-            mouse_input_left(self, mouse_pos);
-        } else if is_mouse_button_pressed(MouseButton::Right){
-            mouse_input_right(self, mouse_pos);
-        }
+        self.key = key;
+        self.handle_inputs();
     }
+}
+
+impl GlobalInputHandle for EditorGui {
+    fn key(&self) -> Option<KeyCode> { self.key }
+    fn textedit(&self) -> Textedit { self.textedit.clone() } // I really don't want to do this
+    fn gui(&self) -> EditorGui { self.clone() } // I really don't want to do this
+    fn set_textedit(&mut self, new_textedit: Textedit) { self.textedit = new_textedit; }
+    fn set_gui(&mut self, new_gui: EditorGui) { *self = new_gui; }
 }
