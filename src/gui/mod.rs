@@ -1,2 +1,4 @@
 pub(crate)mod editor;
-mod toolbar;
+pub(crate)mod toolbar;
+
+// make global gui manager, that can switch between guis.

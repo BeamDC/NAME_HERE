@@ -3,6 +3,7 @@
 use std::cmp::max;
 use macroquad::input::{KeyCode};
 use crate::editor::texteditor::Textedit;
+use crate::gui::editor::EditorGui;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {
@@ -495,10 +496,14 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode) {
     }
 }
 
-pub fn mouse_input_left(editor: &mut Textedit, (x,y): (f32, f32)) {
+pub fn mouse_input_left(editor: &mut EditorGui, (x,y): (f32, f32)) {
     println!("LEFT MOUSE PRESSED @ ({x}, {y})");
+    let hovered_icon = editor.toolbar.hovered;
+    match hovered_icon {
+        _ => {}
+    }
 }
 
-pub fn mouse_input_right(editor: &mut Textedit, (x,y): (f32, f32)) {
+pub fn mouse_input_right(editor: &mut EditorGui, (x,y): (f32, f32)) {
     println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
 }

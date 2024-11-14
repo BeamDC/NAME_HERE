@@ -145,13 +145,15 @@ impl EditorGui {
             },
             _ => {}
         }
+
         // check mouse inputs
         let mouse_pos = mouse_position();
+
         // there's probably a way to avoid these if statements
         if is_mouse_button_pressed(MouseButton::Left){
-            mouse_input_left(&mut self.textedit, mouse_pos);
+            mouse_input_left(self, mouse_pos);
         } else if is_mouse_button_pressed(MouseButton::Right){
-            mouse_input_right(&mut self.textedit, mouse_pos);
+            mouse_input_right(self, mouse_pos);
         }
     }
 }
