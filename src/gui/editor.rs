@@ -1,7 +1,10 @@
 use crate::editor::texteditor::Textedit;
-use crate::editor::input_handler::{mouse_input_left, mouse_input_right, parse_alt_inputs, parse_control_inputs, parse_general_inputs, parse_shift_inputs};
+use crate::editor::input_handler::{mouse_input_left, mouse_input_right,
+                                   parse_alt_inputs, parse_control_inputs,
+                                   parse_general_inputs, parse_shift_inputs};
 use macroquad::color::{GRAY, RED, WHITE};
-use macroquad::input::{get_last_key_pressed, is_mouse_button_down, is_mouse_button_pressed, mouse_position, mouse_wheel, KeyCode, MouseButton};
+use macroquad::input::{get_last_key_pressed, is_mouse_button_pressed,
+                       mouse_position, mouse_wheel, KeyCode, MouseButton};
 use macroquad::math::clamp;
 use macroquad::prelude::is_key_down;
 use macroquad::shapes::draw_rectangle;
@@ -15,7 +18,7 @@ pub struct EditorGui {
     font_size: f32,
     indent: f32,
     vert_gap: f32,
-    _mouse_x: f32,
+    _mouse_wheel_x: f32,
     mouse_wheel_y: f32,
     font: Font,
 }
@@ -27,9 +30,9 @@ impl EditorGui {
             textedit: Textedit::new(),
             toolbar: Toolbar::new(),
             font_size,
-            indent: font_size * 3.0, // no sane person writes enough code for this to overlap
+            indent: font_size * 3.0,
             vert_gap: 30.0,
-            _mouse_x: 0.0,
+            _mouse_wheel_x: 0.0, // this can help with trackpad support!
             mouse_wheel_y: 0.0,
             font,
         }

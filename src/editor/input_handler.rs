@@ -1,3 +1,5 @@
+// My apologies
+
 use std::cmp::max;
 use macroquad::input::{KeyCode};
 use crate::editor::texteditor::Textedit;
@@ -494,11 +496,9 @@ pub fn parse_general_inputs(editor: &mut Textedit, key: KeyCode) {
 }
 
 pub fn mouse_input_left(editor: &mut Textedit, (x,y): (f32, f32)) {
-    // todo!(handle mouse inputs, on click pass this function the coords);
     println!("LEFT MOUSE PRESSED @ ({x}, {y})");
 }
 
 pub fn mouse_input_right(editor: &mut Textedit, (x,y): (f32, f32)) {
-    // todo!(handle mouse inputs, on click pass this function the coords);
     println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
 }

@@ -34,13 +34,13 @@ async fn main() {
         .unwrap();
     let mut editor = EditorGui::new(editor_font);
     editor.textedit.read().unwrap();
+
     // add null at EOF, to help out of bounds errors,
     // clunky fix, but it works
     editor.textedit.buffer.push(0);
     loop {
         // draw_text(format!("{}", get_fps()).as_str(), screen_width() * 0.75, 20.0, 30.0, YELLOW);
         editor.draw();
-        // Clear screen, go next
         next_frame().await
     }
     // todo: write changes on editor close.
