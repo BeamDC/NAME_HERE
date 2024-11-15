@@ -1,8 +1,10 @@
 use std::any::{type_name, Any};
 use std::cmp::max;
 use macroquad::input::{is_key_down, is_mouse_button_pressed, mouse_position, KeyCode, MouseButton};
+use macroquad::math::{Rect, Vec2};
 use crate::editor::texteditor::Textedit;
 use crate::gui::editor::EditorGui;
+use crate::gui::toolbar::Toolbar;
 use crate::traits::context::Context;
 use crate::traits::gui::Gui;
 
@@ -14,26 +16,24 @@ macro_rules! insert_u8 {
 
 pub trait GlobalInputHandle {
     type GuiType: Gui;
-    type ContextType: Context;
     fn key(&self) -> Option<KeyCode>;
-    fn context(&self) -> Self::ContextType;
+    fn context(&self) -> Textedit;
     fn gui(&self) -> Self::GuiType;
-    fn set_context(&mut self, new_context: Self::ContextType);
+    fn set_context(&mut self, new_context: Textedit);
     fn set_gui(&mut self, new_gui: Self::GuiType);
     fn handle_inputs(&mut self) {
         match self.key() {
             Some(k) => {
                 if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
                     self.parse_shift_inputs(k)
-                } else if is_key_down(KeyCode::LeftControl) &&
-                    self.context().name() == "Textedit" { // not so easy on the eyes
+                } else if is_key_down(KeyCode::LeftControl)  { // not so easy on the eyes
                     self.parse_control_inputs(k)
-                } else if is_key_down(KeyCode::LeftAlt) &&
-                    self.context().name() == "Textedit" { // not so easy on the eyes
+                } else if is_key_down(KeyCode::LeftAlt) { // not so easy on the eyes
                     self.parse_alt_inputs(k)
                 } else {
                     self.parse_general_inputs(k)
                 }
+                return
             }
             _ => {}
         }
@@ -49,7 +49,7 @@ pub trait GlobalInputHandle {
         }
     }
     fn parse_control_inputs(&mut self, key: KeyCode) {
-        let mut editor = self.context(); // todo: this will crash when in terminal
+        let mut editor = self.context();
         match key {
             KeyCode::S => { // save the editor contents to the open file
                 editor.write().unwrap();
@@ -546,17 +546,26 @@ pub trait GlobalInputHandle {
         self.set_context(editor);
     }
     fn mouse_input_left(&mut self, (x, y): (f32, f32)) {
-        let mut editor = self.gui();
+        let mut gui = self.gui();
         println!("LEFT MOUSE PRESSED @ ({x}, {y})");
-        // let hovered_icon = editor.toolbar.hovered;
-        // match hovered_icon {
-        //     _ => {}
-        // }
-        self.set_gui(editor);
+        self.set_gui(gui);
     }
     fn mouse_input_right(&mut self, (x, y): (f32, f32)) {
         let mut editor = self.gui();
         println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
         self.set_gui(editor);
+    }
+}
+
+pub trait ToolbarHandle {
+    fn get_toolbar(&self) -> Toolbar;
+    fn set_toolbar(&mut self, toolbar: Toolbar);
+    fn detect_icon_click(&mut self) {
+        let mut toolbar = self.get_toolbar();
+        if !is_mouse_button_pressed(MouseButton::Left) { return }
+        if toolbar.hovered.is_none() { return }
+        toolbar.selected = toolbar.hovered;
+        println!("{:?}", toolbar.selected);
+        self.set_toolbar(toolbar);
     }
 }

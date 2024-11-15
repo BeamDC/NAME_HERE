@@ -1,20 +1,16 @@
+use crate::constants::TOOLBAR_SIZE;
 use crate::editor::texteditor::Textedit;
-use crate::traits::input_handler::{GlobalInputHandle};
 use crate::traits::gui::Gui;
+use crate::traits::input_handler::GlobalInputHandle;
 use macroquad::color::{GRAY, RED, WHITE};
-use macroquad::input::{get_last_key_pressed, is_mouse_button_pressed,
-                       mouse_position, mouse_wheel, KeyCode, MouseButton};
+use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
-use macroquad::prelude::is_key_down;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text_ex, measure_text, Font, TextParams};
-use crate::gui::toolbar::Toolbar;
-use crate::compiler::lexer::tokenize;
 
 #[derive(Clone)]
 pub struct EditorGui {
     pub textedit: Textedit,
-    pub toolbar: Toolbar, // todo: make this part of the window manager instead.
     font_size: f32,
     font: Font,
     indent: f32,
@@ -29,7 +25,6 @@ impl EditorGui {
         let font_size = 30.0;
         Self {
             textedit: Textedit::new(),
-            toolbar: Toolbar::new(),
             font_size,
             font,
             indent: font_size * 3.0,
@@ -46,6 +41,7 @@ impl EditorGui {
 
         let contents  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap();
+
         // TODO: THIS !!!!!!!
         // let tokens = tokenize(&contents);
         // TODO: THIS !!!!!!!
@@ -63,20 +59,17 @@ impl EditorGui {
         self.draw_contents(&contents, &params);
         self.draw_cursor(&contents, &font);
         self.draw_line_numbers(&contents, &params);
-
-        // draw other ui elements
-        self.toolbar.draw();
     }
-    fn draw_contents(&mut self, contents: &str, params: &TextParams, ) {
+    fn draw_contents(&mut self, contents: &str, params: &TextParams, ) { // todo: make this a trait too!
         // when keyword coloring is added, this will have to change
         let mut y_offset = self.vert_gap - self.mouse_wheel_y;
-        let mut x_offset = self.indent + self.toolbar.width;
+        let mut x_offset = self.indent + TOOLBAR_SIZE;
         for char in contents.chars() {
             if char == '\0' { break; }
             if char == '\r' { continue; }
             if char == '\n' {
                 y_offset += self.font_size;
-                x_offset = self.indent + self.toolbar.width;
+                x_offset = self.indent + TOOLBAR_SIZE;
                 continue;
             }
             let char: &str = &char.to_string();
@@ -89,7 +82,7 @@ impl EditorGui {
 
     fn draw_line_numbers(&mut self, contents: &str, params: &TextParams) {
         let mut y: f32 = self.vert_gap - self.mouse_wheel_y;
-        let x = self.indent / 2.0 - self.font_size + self.toolbar.width;
+        let x = self.indent / 2.0 - self.font_size + TOOLBAR_SIZE;
         let mut params = params.clone();
         params.color = GRAY;
         let lines = contents.lines().count();
@@ -119,7 +112,7 @@ impl EditorGui {
         let chars_before: f32 = measure_text(range,
                                              font_option,
                                              self.font_size as u16, 1.0).width; // measure_text(char, params.font, self.font_size as u16, 1.0).width
-        let ptr_x: f32 = self.indent + self.toolbar.width + chars_before;
+        let ptr_x: f32 = self.indent + TOOLBAR_SIZE + chars_before;
         let ptr_y: f32 = self.font_size * (lines_before + 1) as f32 - ptr_size.offset_y - self.mouse_wheel_y;
         draw_rectangle(ptr_x, ptr_y, // draws starting from what should be bottom.
                        2.0,
@@ -136,7 +129,6 @@ impl EditorGui {
 
 impl GlobalInputHandle for EditorGui {
     type GuiType = EditorGui;
-    type ContextType = Textedit;
     fn key(&self) -> Option<KeyCode> { self.key }
     fn context(&self) -> Textedit { self.textedit.clone() } // I really don't want to do this
     fn gui(&self) -> Self::GuiType { self.clone() } // I really don't want to do this
@@ -145,5 +137,5 @@ impl GlobalInputHandle for EditorGui {
 }
 
 impl Gui for EditorGui {
-    fn name(&self) -> &'static str { "editor" }
+    fn name(&self) -> &'static str { "Editor" }
 }

@@ -8,6 +8,8 @@ use macroquad::prelude::Texture2D;
 use macroquad::prelude::WHITE;
 use macroquad::prelude::{draw_rectangle_ex, draw_rectangle_lines, screen_height, DrawRectangleParams};
 use macroquad::texture::DrawTextureParams;
+use crate::constants::TOOLBAR_SIZE;
+use crate::traits::input_handler::ToolbarHandle;
 
 macro_rules! render_icon {
     ($path: expr, $x: expr, $y: expr, $params: expr) => {
@@ -52,12 +54,13 @@ pub struct Toolbar {
     pub bg_params: DrawRectangleParams,
     pub(crate) icons: Vec<(Icons, Vec2)>, // (icon type, position)
     pub hovered: Option<Icons>,
+    pub selected: Option<Icons>,
 }
 
 impl Toolbar {
     pub fn new() -> Self {
         Self {
-            width: 50.0,
+            width: TOOLBAR_SIZE,
             icon_size: 34.0,
             bg_params: DrawRectangleParams {
                 offset: Vec2::new(0.0, 0.0),
@@ -73,14 +76,23 @@ impl Toolbar {
                 (Icons::Icon, Vec2::ZERO),
             ],
             hovered: None,
+            selected: None,
         }
     }
 
     pub fn draw(&mut self) {
+        self.read_inputs();
         draw_rectangle_ex(0.0, 0.0, self.width, screen_height(), self.bg_params.clone());
-        self.draw_icons(true);
+        self.draw_icons(false);
+        println!("{:?}", self.selected);
     }
 
+    pub fn read_inputs(&mut self) {
+        // let (mouse_x,mouse_y) = mouse_position();
+        self.detect_icon_click();
+    }
+
+    // some of the stuff in here should probably be sent to the input handler
     pub fn draw_icons(&mut self, bounding: bool) {
         let padding = (self.width - self.icon_size) / 2.0;
         let params = DrawTextureParams {
@@ -88,7 +100,6 @@ impl Toolbar {
             ..Default::default()
         };
 
-        // check if the mouse is over an icon
         let (mouse_x,mouse_y) = mouse_position();
         self.hovered = self.icons
             .iter()
@@ -148,4 +159,9 @@ impl Toolbar {
             }
         }
     }
+}
+
+impl ToolbarHandle for Toolbar {
+    fn get_toolbar(&self) -> Toolbar { self.clone() }
+    fn set_toolbar(&mut self, toolbar: Toolbar) { *self = toolbar; }
 }

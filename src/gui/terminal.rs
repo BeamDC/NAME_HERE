@@ -1,4 +1,4 @@
-use macroquad::input::KeyCode;
+use macroquad::input::{get_last_key_pressed, KeyCode};
 use macroquad::prelude::Font;
 use crate::editor::texteditor::Textedit;
 use crate::terminal::terminal::Terminal;
@@ -31,6 +31,16 @@ impl TerminalGui {
             key: None,
         }
     }
+
+    pub fn draw(&mut self) { // todo: make draw_contents a trait and apply it to the terminal
+        self.read_inputs();
+    }
+
+    fn read_inputs(&mut self) {
+        let key = get_last_key_pressed();
+        self.key = key;
+        self.handle_inputs();
+    }
 }
 
 impl Gui for TerminalGui {
@@ -39,10 +49,9 @@ impl Gui for TerminalGui {
 
 impl GlobalInputHandle for TerminalGui {
     type GuiType = TerminalGui;
-    type ContextType = Terminal;
     fn key(&self) -> Option<KeyCode> { self.key }
-    fn context(&self) -> Terminal { self.terminal.clone() } // I really don't want to do this
+    fn context(&self) -> Textedit { self.terminal.textedit.clone() } // I really don't want to do this
     fn gui(&self) -> Self::GuiType { self.clone() } // I really don't want to do this
-    fn set_context(&mut self, new_textedit: Terminal) { self.terminal = new_textedit; }
+    fn set_context(&mut self, new_textedit: Textedit ) { self.terminal.textedit = new_textedit; }
     fn set_gui(&mut self, new_gui: Self::GuiType) { *self = new_gui; }
 }

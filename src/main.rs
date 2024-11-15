@@ -14,9 +14,11 @@ mod types;
 mod traits;
 mod gui;
 mod terminal;
+mod constants;
 
 use macroquad::prelude::*;
 use crate::gui::editor::EditorGui;
+use crate::gui::GuiManager;
 
 fn window_conf() -> Conf {
     Conf {
@@ -30,17 +32,15 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let editor_font = load_ttf_font("src/assets/fonts/VictorMono.ttf")
+    let font = load_ttf_font("src/assets/fonts/VictorMono.ttf")
         .await
         .unwrap();
-    let mut editor = EditorGui::new(editor_font);
-    editor.textedit.read().unwrap();
+    let mut app = GuiManager::new(font);
+    app.init();
 
-    // add null at EOF, to help out of bounds errors
-    editor.textedit.buffer.push(0);
     loop {
         // draw_text(format!("{}", get_fps()).as_str(), screen_width() * 0.75, 20.0, 30.0, YELLOW);
-        editor.draw();
+        app.draw();
         next_frame().await
     }
     // todo: write changes on editor close.
