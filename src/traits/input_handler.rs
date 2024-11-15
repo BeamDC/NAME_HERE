@@ -1,7 +1,10 @@
+use std::any::{type_name, Any};
 use std::cmp::max;
 use macroquad::input::{is_key_down, is_mouse_button_pressed, mouse_position, KeyCode, MouseButton};
 use crate::editor::texteditor::Textedit;
 use crate::gui::editor::EditorGui;
+use crate::traits::context::Context;
+use crate::traits::gui::Gui;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {
@@ -10,19 +13,23 @@ macro_rules! insert_u8 {
 }
 
 pub trait GlobalInputHandle {
+    type GuiType: Gui;
+    type ContextType: Context;
     fn key(&self) -> Option<KeyCode>;
-    fn textedit(&self) -> Textedit;
-    fn gui(&self) -> EditorGui;
-    fn set_textedit(&mut self, new_textedit: Textedit);
-    fn set_gui(&mut self, new_gui: EditorGui);
+    fn context(&self) -> Self::ContextType;
+    fn gui(&self) -> Self::GuiType;
+    fn set_context(&mut self, new_context: Self::ContextType);
+    fn set_gui(&mut self, new_gui: Self::GuiType);
     fn handle_inputs(&mut self) {
         match self.key() {
             Some(k) => {
                 if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
                     self.parse_shift_inputs(k)
-                } else if is_key_down(KeyCode::LeftControl) {
+                } else if is_key_down(KeyCode::LeftControl) &&
+                    self.context().name() == "Textedit" { // not so easy on the eyes
                     self.parse_control_inputs(k)
-                } else if is_key_down(KeyCode::LeftAlt) {
+                } else if is_key_down(KeyCode::LeftAlt) &&
+                    self.context().name() == "Textedit" { // not so easy on the eyes
                     self.parse_alt_inputs(k)
                 } else {
                     self.parse_general_inputs(k)
@@ -42,7 +49,7 @@ pub trait GlobalInputHandle {
         }
     }
     fn parse_control_inputs(&mut self, key: KeyCode) {
-        let mut editor =  self.textedit();
+        let mut editor = self.context(); // todo: this will crash when in terminal
         match key {
             KeyCode::S => { // save the editor contents to the open file
                 editor.write().unwrap();
@@ -74,10 +81,10 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
-        self.set_textedit(editor);
+        self.set_context(editor);
     }
     fn parse_alt_inputs(&mut self, key: KeyCode) {
-        let mut editor =  self.textedit();
+        let mut editor = self.context();
         match key {
             _ => {}
         }
@@ -87,10 +94,10 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
-        self.set_textedit(editor);
+        self.set_context(editor);
     }
     fn parse_shift_inputs(&mut self, key: KeyCode) {
-        let mut editor =  self.textedit();
+        let mut editor =  self.context();
         match key {
             // TODO: this is for selection
             // KeyCode::Right => {
@@ -277,10 +284,10 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
-        self.set_textedit(editor);
+        self.set_context(editor);
     }
     fn parse_general_inputs(&mut self, key: KeyCode) {
-        let mut editor =  self.textedit();
+        let mut editor =  self.context();
         match key {
             KeyCode::Right => {
                 if editor.pointer < editor.buffer.len() - 1 {
@@ -536,15 +543,15 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
-        self.set_textedit(editor);
+        self.set_context(editor);
     }
     fn mouse_input_left(&mut self, (x, y): (f32, f32)) {
         let mut editor = self.gui();
         println!("LEFT MOUSE PRESSED @ ({x}, {y})");
-        let hovered_icon = editor.toolbar.hovered;
-        match hovered_icon {
-            _ => {}
-        }
+        // let hovered_icon = editor.toolbar.hovered;
+        // match hovered_icon {
+        //     _ => {}
+        // }
         self.set_gui(editor);
     }
     fn mouse_input_right(&mut self, (x, y): (f32, f32)) {

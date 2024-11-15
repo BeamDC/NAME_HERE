@@ -1,5 +1,6 @@
 use crate::editor::texteditor::Textedit;
 use crate::traits::input_handler::{GlobalInputHandle};
+use crate::traits::gui::Gui;
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, is_mouse_button_pressed,
                        mouse_position, mouse_wheel, KeyCode, MouseButton};
@@ -13,7 +14,7 @@ use crate::compiler::lexer::tokenize;
 #[derive(Clone)]
 pub struct EditorGui {
     pub textedit: Textedit,
-    pub toolbar: Toolbar,
+    pub toolbar: Toolbar, // todo: make this part of the window manager instead.
     font_size: f32,
     font: Font,
     indent: f32,
@@ -134,9 +135,15 @@ impl EditorGui {
 }
 
 impl GlobalInputHandle for EditorGui {
+    type GuiType = EditorGui;
+    type ContextType = Textedit;
     fn key(&self) -> Option<KeyCode> { self.key }
-    fn textedit(&self) -> Textedit { self.textedit.clone() } // I really don't want to do this
-    fn gui(&self) -> EditorGui { self.clone() } // I really don't want to do this
-    fn set_textedit(&mut self, new_textedit: Textedit) { self.textedit = new_textedit; }
-    fn set_gui(&mut self, new_gui: EditorGui) { *self = new_gui; }
+    fn context(&self) -> Textedit { self.textedit.clone() } // I really don't want to do this
+    fn gui(&self) -> Self::GuiType { self.clone() } // I really don't want to do this
+    fn set_context(&mut self, new_textedit: Textedit) { self.textedit = new_textedit; }
+    fn set_gui(&mut self, new_gui: Self::GuiType) { *self = new_gui; }
+}
+
+impl Gui for EditorGui {
+    fn name(&self) -> &'static str { "editor" }
 }

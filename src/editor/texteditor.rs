@@ -1,6 +1,7 @@
 use std::fs;
 use std::fs::File;
 use std::io::Write;
+use crate::traits::context::Context;
 
 #[derive(Debug,Clone)]
 pub struct Textedit {
@@ -35,4 +36,8 @@ impl Textedit {
         f.write_all(stripped)?;
         Ok(())
     }
+}
+
+impl Context for Textedit {
+    fn name(&self) -> &'static str { "Textedit" }
 }

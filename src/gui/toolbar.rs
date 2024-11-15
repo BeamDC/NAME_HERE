@@ -38,8 +38,9 @@ macro_rules! indicate_hovered {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Icons {
     FileOpen,
-    Editor,
     Search,
+    Editor,
+    Terminal,
     Settings,
     Icon,
 }
@@ -65,8 +66,9 @@ impl Toolbar {
             },
             icons: vec![
                 (Icons::FileOpen, Vec2::ZERO),
-                (Icons::Editor, Vec2::ZERO),
                 (Icons::Search, Vec2::ZERO),
+                (Icons::Editor, Vec2::ZERO),
+                (Icons::Terminal, Vec2::ZERO),
                 (Icons::Settings, Vec2::ZERO),
                 (Icons::Icon, Vec2::ZERO),
             ],
@@ -114,6 +116,10 @@ impl Toolbar {
                 Icons::Editor => {
                     indicate_hovered!(self.hovered, *icon, position, self.icon_size);
                     render_icon!("../../src/assets/icons/editor.png", position.x, position.y, &params);
+                }
+                Icons::Terminal => {
+                    indicate_hovered!(self.hovered, *icon, position, self.icon_size);
+                    render_icon!("../../src/assets/icons/terminal.png", position.x, position.y, &params);
                 }
                 Icons::Search => {
                     indicate_hovered!(self.hovered, *icon, position, self.icon_size);

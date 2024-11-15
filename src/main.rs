@@ -13,6 +13,7 @@ mod editor;
 mod types;
 mod traits;
 mod gui;
+mod terminal;
 
 use macroquad::prelude::*;
 use crate::gui::editor::EditorGui;
