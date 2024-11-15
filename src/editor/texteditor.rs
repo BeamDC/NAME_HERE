@@ -43,13 +43,6 @@ impl Textedit {
         Ok(())
     }
 }
-
-impl AsRef<Textedit> for Textedit {
-    fn as_ref(&self) -> &Textedit {
-        self
-    }
-}
-
 impl Context for Textedit {
     fn name(&self) -> &'static str { "Editor" }
     fn get_pointer(&self) -> usize { self.pointer}
