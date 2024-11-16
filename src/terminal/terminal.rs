@@ -6,17 +6,14 @@ pub struct Terminal {
     pub textedit: Textedit,
 }
 
+// todo: make this work.
+// maybe double the line spacing, to have a line in between of terminal output.
+// or write output to the buffer, and force the cursor to the end.
 impl Terminal {
     pub fn new() -> Self {
         Self {
             textedit: Textedit::new(),
         }
-    }
-}
-
-impl AsRef<Terminal> for Terminal {
-    fn as_ref(&self) -> &Terminal {
-        self
     }
 }
 
