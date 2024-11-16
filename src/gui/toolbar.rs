@@ -75,7 +75,7 @@ impl Toolbar {
                 (Icons::Settings, Vec2::ZERO),
                 (Icons::Icon, Vec2::ZERO),
             ],
-            hovered: None,
+            hovered: None, // todo: display tooltip for the hovered icon
             selected: None,
         }
     }
@@ -84,7 +84,6 @@ impl Toolbar {
         self.read_inputs();
         draw_rectangle_ex(0.0, 0.0, self.width, screen_height(), self.bg_params.clone());
         self.draw_icons(false);
-        println!("{:?}", self.selected);
     }
 
     pub fn read_inputs(&mut self) {
