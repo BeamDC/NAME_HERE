@@ -15,6 +15,7 @@ mod traits;
 mod gui;
 mod terminal;
 mod constants;
+mod math;
 
 use macroquad::prelude::*;
 use crate::gui::editor::EditorGui;
