@@ -1,5 +1,6 @@
 // Linear Algebra, special thanks to Alireza Sayyidmousavi
 
+use std::ops::Add;
 
 #[derive(Debug, Clone)]
 pub struct Matrix<T> {
@@ -8,15 +9,12 @@ pub struct Matrix<T> {
     pub data: Vec<Vec<T>>
 }
 
-
-
-impl<T> Matrix<T> // todo: block non numeric types from existing here
+impl<T> Matrix<T>
 where
-T:Default + Clone
+T:  Default + Clone + Add<Output = T>
 {
     pub fn new(width: usize, height: usize) -> Matrix<T> {
         let data = vec![vec![T::default(); width]; height];
-
         Matrix {
             width,
             height,
