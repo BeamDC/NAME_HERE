@@ -7,8 +7,9 @@ use macroquad::prelude::{draw_rectangle, draw_texture_ex, Rect};
 use macroquad::prelude::Texture2D;
 use macroquad::prelude::WHITE;
 use macroquad::prelude::{draw_rectangle_ex, draw_rectangle_lines, screen_height, DrawRectangleParams};
+use macroquad::text::Font;
 use macroquad::texture::DrawTextureParams;
-use crate::constants::TOOLBAR_SIZE;
+use crate::constants::{TOOLBAR_COLOR, TOOLBAR_SIZE};
 use crate::traits::input_handler::ToolbarHandle;
 
 macro_rules! render_icon {
@@ -51,6 +52,8 @@ pub enum Icons {
 pub struct Toolbar {
     pub width: f32,
     pub icon_size: f32,
+    pub font: Font,
+    pub font_size: f32,
     pub bg_params: DrawRectangleParams,
     pub(crate) icons: Vec<(Icons, Vec2)>, // (icon type, position)
     pub hovered: Option<Icons>,
@@ -58,14 +61,16 @@ pub struct Toolbar {
 }
 
 impl Toolbar {
-    pub fn new() -> Self {
+    pub fn new(font: Font) -> Self {
         Self {
             width: TOOLBAR_SIZE,
             icon_size: 34.0,
+            font,
+            font_size: 16.0,
             bg_params: DrawRectangleParams {
                 offset: Vec2::new(0.0, 0.0),
                 rotation: 0.0,
-                color: Color::new(0.22, 0.22, 0.22, 1.0),
+                color: TOOLBAR_COLOR,
             },
             icons: vec![
                 (Icons::FileOpen, Vec2::ZERO),
@@ -75,20 +80,21 @@ impl Toolbar {
                 (Icons::Settings, Vec2::ZERO),
                 (Icons::Icon, Vec2::ZERO),
             ],
-            hovered: None, // todo: display tooltip for the hovered icon
+            hovered: None,
             selected: None,
         }
     }
 
     pub fn draw(&mut self) {
-        self.read_inputs();
         draw_rectangle_ex(0.0, 0.0, self.width, screen_height(), self.bg_params.clone());
         self.draw_icons(false);
+        self.read_inputs();
     }
 
     pub fn read_inputs(&mut self) {
         // let (mouse_x,mouse_y) = mouse_position();
         self.detect_icon_click();
+        self.show_tooltip(false);
     }
 
     // some of the stuff in here should probably be sent to the input handler
@@ -163,4 +169,6 @@ impl Toolbar {
 impl ToolbarHandle for Toolbar {
     fn get_toolbar(&self) -> Toolbar { self.clone() }
     fn set_toolbar(&mut self, toolbar: Toolbar) { *self = toolbar; }
+    fn get_font(&self) -> Font { self.font.clone() }
+    fn get_font_size(&self) -> f32 { self.font_size }
 }

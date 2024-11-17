@@ -27,7 +27,6 @@ impl Textedit {
         self.buffer = fs::read(&path)?;
         Ok(())
     }
-
     pub fn write(&mut self) -> std::io::Result<()> {
         if self.file.is_none() { return Ok(())}
         let path = self.file.clone().unwrap();

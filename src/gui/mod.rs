@@ -17,7 +17,6 @@ enum PossibleGuis {
     None,
 }
 
-// todo: add ability to check which gui is currently open
 pub struct GuiManager {
     toolbar: Toolbar,
     editor: EditorGui,
@@ -28,7 +27,7 @@ pub struct GuiManager {
 impl GuiManager {
     pub fn new(font: Font) -> Self {
         Self {
-            toolbar: Toolbar::new(),
+            toolbar: Toolbar::new(font.clone()),
             editor: EditorGui::new(font.clone()),
             terminal: TerminalGui::new(font.clone()),
             active: PossibleGuis::Editor,

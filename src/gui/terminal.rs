@@ -1,12 +1,11 @@
-use macroquad::color::WHITE;
-use macroquad::input::{get_last_key_pressed, KeyCode};
-use macroquad::prelude::{Font, TextParams};
 use crate::editor::texteditor::Textedit;
-use crate::gui::editor::EditorGui;
 use crate::terminal::terminal::Terminal;
 use crate::traits::drawing::DrawTextedit;
 use crate::traits::gui::Gui;
 use crate::traits::input_handler::GlobalInputHandle;
+use macroquad::color::WHITE;
+use macroquad::input::{get_last_key_pressed, KeyCode};
+use macroquad::prelude::{Font, TextParams};
 
 #[derive(Clone)]
 pub struct TerminalGui {

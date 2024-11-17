@@ -1,13 +1,11 @@
-use crate::constants::TOOLBAR_SIZE;
 use crate::editor::texteditor::Textedit;
+use crate::traits::drawing::DrawTextedit;
 use crate::traits::gui::Gui;
 use crate::traits::input_handler::GlobalInputHandle;
-use macroquad::color::{GRAY, RED, WHITE};
+use macroquad::color::WHITE;
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
-use macroquad::shapes::draw_rectangle;
-use macroquad::text::{draw_text_ex, measure_text, Font, TextParams};
-use crate::traits::drawing::DrawTextedit;
+use macroquad::text::{Font, TextParams};
 
 #[derive(Clone)]
 pub struct EditorGui {

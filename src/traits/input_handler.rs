@@ -1,10 +1,16 @@
 use std::any::{type_name, Any};
 use std::cmp::max;
+use std::process::id;
+use macroquad::color::{Color, WHITE};
 use macroquad::input::{is_key_down, is_mouse_button_pressed, mouse_position, KeyCode, MouseButton};
 use macroquad::math::{Rect, Vec2};
+use macroquad::miniquad::CursorIcon::Default;
+use macroquad::prelude::{draw_rectangle_lines, draw_text_ex, measure_text};
+use macroquad::shapes::draw_rectangle;
+use macroquad::text::{Font, TextParams};
 use crate::editor::texteditor::Textedit;
 use crate::gui::editor::EditorGui;
-use crate::gui::toolbar::Toolbar;
+use crate::gui::toolbar::{Icons, Toolbar};
 use crate::traits::context::Context;
 use crate::traits::gui::Gui;
 
@@ -547,12 +553,12 @@ pub trait GlobalInputHandle {
     }
     fn mouse_input_left(&mut self, (x, y): (f32, f32)) {
         let mut gui = self.gui();
-        println!("LEFT MOUSE PRESSED @ ({x}, {y})");
+        // println!("LEFT MOUSE PRESSED @ ({x}, {y})");
         self.set_gui(gui);
     }
     fn mouse_input_right(&mut self, (x, y): (f32, f32)) {
         let mut editor = self.gui();
-        println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
+        // println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
         self.set_gui(editor);
     }
 }
@@ -560,12 +566,71 @@ pub trait GlobalInputHandle {
 pub trait ToolbarHandle {
     fn get_toolbar(&self) -> Toolbar;
     fn set_toolbar(&mut self, toolbar: Toolbar);
+    fn get_font(&self) -> Font;
+    fn get_font_size(&self) -> f32;
     fn detect_icon_click(&mut self) {
         let mut toolbar = self.get_toolbar();
         if !is_mouse_button_pressed(MouseButton::Left) { return }
         if toolbar.hovered.is_none() { return }
         toolbar.selected = toolbar.hovered;
         println!("{:?}", toolbar.selected);
+        self.set_toolbar(toolbar);
+    }
+    fn show_tooltip(&mut self, textonly: bool) {
+        let mut toolbar = self.get_toolbar();
+        if toolbar.hovered.is_none() { return }
+        let (mx,my) = mouse_position();
+        let font = self.get_font();
+        // get name of the icon
+        let name = match toolbar.hovered {
+            Some(Icons::FileOpen) => "Open File",
+            Some(Icons::Editor) => "Editor",
+            Some(Icons::Terminal) => "Terminal",
+            Some(Icons::Search) => "Search",
+            Some(Icons::Settings) => "Settings",
+            Some(Icons::Icon) => "lil guy :>",
+            _ => {""}
+        };
+
+        let params = TextParams {
+            font: Option::from(&font),
+            font_size: self.get_font_size().clone() as u16,
+            color: WHITE,
+            ..std::default::Default::default()
+        };
+
+        let text_size = measure_text(name, Option::from(&font),
+                                     self.get_font_size() as u16, 1.0);
+
+        let width = 30.0 + text_size.width;
+        let height = 10.0 + text_size.height;
+        let center_x = (width - text_size.width) / 2.0;
+        let center_y = (height - text_size.height) / 2.0;
+        let pos_x = mx * 1.5;
+        let pos_y = my-(height/2.0);
+        if !textonly { // todo: look into rounded rectangle!!!
+            draw_rectangle(
+                pos_x,
+                pos_y,
+                width,
+                height,
+                Color::new(0.29, 0.29, 0.29, 1.0),
+            );
+            draw_rectangle_lines(
+                pos_x,
+                pos_y,
+                width,
+                height,
+                2.0,
+                Color::new(0.38, 0.38, 0.38, 1.0),
+            );
+        }
+        draw_text_ex(
+            name,
+            pos_x + center_x,
+            pos_y + center_y + self.get_font_size(),
+            params.clone()
+        );
         self.set_toolbar(toolbar);
     }
 }

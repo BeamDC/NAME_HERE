@@ -10,7 +10,7 @@ pub struct Matrix<T> {
 
 
 
-impl<T> Matrix<T>
+impl<T> Matrix<T> // todo: block non numeric types from existing here
 where
 T:Default + Clone
 {
