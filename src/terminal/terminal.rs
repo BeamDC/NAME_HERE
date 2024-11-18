@@ -4,6 +4,7 @@ use crate::traits::context::Context;
 #[derive(Clone)]
 pub struct Terminal {
     pub textedit: Textedit,
+    pub responses: Vec<String>,
 }
 
 // todo: make this work.
@@ -13,8 +14,11 @@ impl Terminal {
     pub fn new() -> Self {
         Self {
             textedit: Textedit::new(),
+            responses: Vec::new(),
         }
     }
+
+    // todo: get last command and generate a response
 }
 
 impl Context for Terminal {

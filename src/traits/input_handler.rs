@@ -32,7 +32,7 @@ pub trait GlobalInputHandle {
             Some(k) => {
                 if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
                     self.parse_shift_inputs(k)
-                } else if is_key_down(KeyCode::LeftControl)  { // not so easy on the eyes
+                } else if is_key_down(KeyCode::LeftControl) { // not so easy on the eyes
                     self.parse_control_inputs(k)
                 } else if is_key_down(KeyCode::LeftAlt) { // not so easy on the eyes
                     self.parse_alt_inputs(k)
@@ -103,7 +103,7 @@ pub trait GlobalInputHandle {
         self.set_context(editor);
     }
     fn parse_shift_inputs(&mut self, key: KeyCode) {
-        let mut editor =  self.context();
+        let mut editor = self.context();
         match key {
             // TODO: this is for selection
             // KeyCode::Right => {
@@ -293,7 +293,7 @@ pub trait GlobalInputHandle {
         self.set_context(editor);
     }
     fn parse_general_inputs(&mut self, key: KeyCode) {
-        let mut editor =  self.context();
+        let mut editor = self.context();
         match key {
             KeyCode::Right => {
                 if editor.pointer < editor.buffer.len() - 1 {
@@ -384,7 +384,7 @@ pub trait GlobalInputHandle {
                 insert_u8!(ch, editor);
                 editor.pointer += 1;
             }
-            KeyCode::Tab => { // todo: crashes when inserting tab at EOF
+            KeyCode::Tab => { // todo: crashes when placed at EOF in terminal
                 let ch: u8 = 32;
                 insert_u8!(ch, editor);
                 insert_u8!(ch, editor);
@@ -540,6 +540,17 @@ pub trait GlobalInputHandle {
                 editor.pointer += 1;
             }
             _ => {}
+        }
+
+        // guard so the user can modify process commands
+        if self.gui().name() == "Terminal" {
+            let last_newline = editor.buffer[..]
+                .iter()
+                .rposition(|&c| c == b'\n')
+                .unwrap_or(editor.pointer);
+            if editor.pointer <= last_newline {
+                editor.pointer = last_newline + 1;
+            }
         }
 
         // when looking at EOF, take a step back

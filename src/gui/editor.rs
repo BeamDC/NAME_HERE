@@ -52,15 +52,15 @@ impl EditorGui {
             color: WHITE,
             ..Default::default()
         };
-        self.mouse_wheel_y -= mouse_wheel().1;
-        self.mouse_wheel_y = clamp(self.mouse_wheel_y, 0.0, f32::MAX);
 
-        self.draw_contents(&contents, &params);
-        self.draw_cursor(&contents, &font);
-        self.draw_line_numbers(&contents, &params);
+        self.draw_contents(&contents, &params, false);
+        self.draw_cursor(&contents, &font, false);
+        self.draw_line_numbers(&contents, &params,false);
     }
 
     fn read_inputs(&mut self) {
+        self.mouse_wheel_y -= mouse_wheel().1;
+        self.mouse_wheel_y = clamp(self.mouse_wheel_y, 0.0, f32::MAX);
         let key = get_last_key_pressed();
         self.key = key;
         self.handle_inputs();

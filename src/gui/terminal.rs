@@ -4,7 +4,8 @@ use crate::traits::drawing::DrawTextedit;
 use crate::traits::gui::Gui;
 use crate::traits::input_handler::GlobalInputHandle;
 use macroquad::color::WHITE;
-use macroquad::input::{get_last_key_pressed, KeyCode};
+use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
+use macroquad::math::clamp;
 use macroquad::prelude::{Font, TextParams};
 
 #[derive(Clone)]
@@ -26,7 +27,7 @@ impl TerminalGui {
             terminal: Terminal::new(),
             font_size,
             font,
-            indent: font_size * 3.0,
+            indent: font_size,
             vert_gap: 30.0,
             _mouse_wheel_x: 0.0,
             mouse_wheel_y: 0.0,
@@ -34,7 +35,7 @@ impl TerminalGui {
         }
     }
 
-    pub fn draw(&mut self) { // todo: make draw_contents a trait and apply it to the terminal
+    pub fn draw(&mut self) {
         let contents  = String::from_utf8(self.terminal.textedit.buffer.clone())
             .unwrap();
         let font = self.font.clone();
@@ -46,11 +47,13 @@ impl TerminalGui {
         };
 
         self.read_inputs();
-        self.draw_contents(&contents, &params);
-        self.draw_cursor(&contents, &font);
+        self.draw_contents(&contents, &params, true);
+        self.draw_cursor(&contents, &font, true);
     }
 
     fn read_inputs(&mut self) {
+        self.mouse_wheel_y -= mouse_wheel().1;
+        self.mouse_wheel_y = clamp(self.mouse_wheel_y, 0.0, f32::MAX);
         let key = get_last_key_pressed();
         self.key = key;
         self.handle_inputs();
@@ -66,7 +69,7 @@ impl GlobalInputHandle for TerminalGui {
     fn key(&self) -> Option<KeyCode> { self.key }
     fn context(&self) -> Textedit { self.terminal.textedit.clone() } // I really don't want to do this
     fn gui(&self) -> Self::GuiType { self.clone() } // I really don't want to do this
-    fn set_context(&mut self, new_textedit: Textedit ) { self.terminal.textedit = new_textedit; }
+    fn set_context(&mut self, new_textedit: Textedit) { self.terminal.textedit = new_textedit; }
     fn set_gui(&mut self, new_gui: Self::GuiType) { *self = new_gui; }
 }
 
