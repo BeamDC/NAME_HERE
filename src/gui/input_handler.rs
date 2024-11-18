@@ -11,8 +11,8 @@ use macroquad::text::{Font, TextParams};
 use crate::editor::texteditor::Textedit;
 use crate::gui::editor::EditorGui;
 use crate::gui::toolbar::{Icons, Toolbar};
-use crate::traits::context::Context;
-use crate::traits::gui::Gui;
+use crate::editor::context::Context;
+use crate::gui::gui::Gui;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {

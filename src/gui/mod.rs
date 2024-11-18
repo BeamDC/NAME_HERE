@@ -1,14 +1,16 @@
-use macroquad::prelude::{load_ttf_font, Font};
+use macroquad::prelude::Font;
 use crate::gui::editor::EditorGui;
 use crate::gui::terminal::TerminalGui;
-use crate::terminal::terminal::Terminal;
 use crate::gui::toolbar::{Icons, Toolbar};
-use crate::traits::gui::Gui;
-use crate::traits::input_handler::GlobalInputHandle;
+use gui::Gui;
+use input_handler::GlobalInputHandle;
 
 pub(crate)mod editor;
 pub(crate)mod toolbar;
 mod terminal;
+pub mod input_handler;
+pub mod gui;
+pub mod drawing;
 
 #[derive(Debug)]
 enum PossibleGuis {

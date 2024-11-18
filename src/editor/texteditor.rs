@@ -1,7 +1,7 @@
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use crate::traits::context::{Context};
+use crate::editor::context::{Context};
 
 #[derive(Debug,Clone)]
 pub struct Textedit {

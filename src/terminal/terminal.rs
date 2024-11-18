@@ -1,5 +1,5 @@
 use crate::editor::texteditor::Textedit;
-use crate::traits::context::Context;
+use crate::editor::context::Context;
 
 #[derive(Clone)]
 pub struct Terminal {
@@ -7,9 +7,6 @@ pub struct Terminal {
     pub responses: Vec<String>,
 }
 
-// todo: make this work.
-// maybe double the line spacing, to have a line in between of terminal output.
-// or write output to the buffer, and force the cursor to the end.
 impl Terminal {
     pub fn new() -> Self {
         Self {

@@ -10,7 +10,7 @@ use macroquad::prelude::{draw_rectangle_ex, draw_rectangle_lines, screen_height,
 use macroquad::text::Font;
 use macroquad::texture::DrawTextureParams;
 use crate::constants::{TOOLBAR_COLOR, TOOLBAR_SIZE};
-use crate::traits::input_handler::ToolbarHandle;
+use crate::gui::input_handler::ToolbarHandle;
 
 macro_rules! render_icon {
     ($path: expr, $x: expr, $y: expr, $params: expr) => {
