@@ -25,7 +25,7 @@ const fn make_lut(chars: &str) -> [bool; 256] {
 const WHITESPACE: [bool; 256] = make_lut(" \t\n\r");
 const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
 const REAL_DIGITS: [bool; 256] = make_lut(".0123456789");
-const OPERATORS: [bool; 256] = make_lut("$%^&*+-=#@?|`/\\<>~");
+const OPERATORS: [bool; 256] = make_lut(r"$%^&*+-=#@?|`/\<>~");
 const IDENT_CHARS: [bool; 256] = make_lut(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890"
 );
@@ -36,18 +36,8 @@ const KEYWORDS: [&str; 8] = [
 pub enum Token {
     Keyword(Vec<char>),
     Ident(Vec<char>),
-
-    // types
     String(Vec<char>),
-
-    // operators
-    Plus(char),
-    Minus(char),
-    Multiply(char),
-    Divide(char),
-    Exponential(char),
-
-    // parenthesis variations
+    Operator(Vec<char>),
     Lparen(char),
     Rparen(char),
     Lsquare(char),
@@ -56,8 +46,6 @@ pub enum Token {
     Rcurly(char),
     Langled(char),
     Rangled(char),
-
-    // control
     Whitespace(char),
     EOF(char),
 }
@@ -75,34 +63,6 @@ impl Lexer<'_> {
             chars: src.char_indices().peekable(),
             current: None,
         }
-    }
-
-    pub fn get_next(&mut self) -> Token{
-        self.current = self.chars.next();
-        let tok: Token;
-        // peek at next, if it's not whitespace, start reading multiline
-        // if it is whitespace, match and return.
-        // if first char is number, looking at numeric literal
-        // if it's a quote it's a string, read until next quote or eof
-
-        match self.current.unwrap_or((0usize, '\0')) { // (usize, char) is the char and its position
-            (_,'+') => {tok = Token::Plus('+')}
-            (_,'-') => {tok = Token::Minus('-')}
-            (_,'*') => {tok = Token::Multiply('*')}
-            (_,'/') => {tok = Token::Divide('/')}
-            (_,'^') => {tok = Token::Exponential('^')}
-
-            (_,'(') => {tok = Token::Lparen('(')}
-            (_,')') => {tok = Token::Rparen(')')}
-            (_,'[') => {tok = Token::Lsquare('[')}
-            (_,']') => {tok = Token::Rsquare(']')}
-            (_,'<') => {tok = Token::Langled('<')}
-            (_,'>') => {tok = Token::Rangled('>')}
-
-            (_,' ') => {tok = Token::Whitespace(' ')}
-            _ => {tok = Token::EOF('\0')},
-        }
-        tok
     }
 }
 
