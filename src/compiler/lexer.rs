@@ -25,7 +25,7 @@ const fn make_lut(chars: &str) -> [bool; 256] {
 const WHITESPACE: [bool; 256] = make_lut(" \t\n\r");
 const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
 const REAL_DIGITS: [bool; 256] = make_lut(".0123456789");
-const OPERATORS: [bool; 256] = make_lut(r"$%^&*+-=#@?|`/\<>~");
+const OPERATORS: [bool; 256] = make_lut(r"!$%^&*+-=#@?|`/\<>~");
 const IDENT_CHARS: [bool; 256] = make_lut(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890"
 );
