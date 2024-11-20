@@ -53,9 +53,9 @@ impl EditorGui {
             ..Default::default()
         };
 
-        self.draw_contents(&contents, &params, false);
-        self.draw_cursor(&contents, &font, false);
-        self.draw_line_numbers(&contents, &params,false);
+        self.draw_contents(&contents, &params, None);
+        self.draw_cursor(&contents, &font, None);
+        self.draw_line_numbers(&contents, &params, None);
     }
 
     fn read_inputs(&mut self) {

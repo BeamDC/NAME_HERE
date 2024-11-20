@@ -11,12 +11,12 @@ pub trait DrawTextedit {
     fn font_size(&self) -> f32;
     fn mouse_wheel_y(&self) -> f32;
     fn textedit(&self) -> &Textedit;
-    fn draw_contents(&mut self, contents: &str, params: &TextParams, double_space: bool) {
+    fn draw_contents(&mut self, contents: &str, params: &TextParams, spacing: Option<f32>) {
         // when keyword coloring is added, this will have to change
         let mut y_offset = self.vert_gap() - self.mouse_wheel_y();
         let mut x_offset = self.indent() + TOOLBAR_SIZE;
-        let extra_space = if double_space {
-            2.0
+        let extra_space = if spacing.is_some() {
+            spacing.unwrap()
         } else {
             1.0
         };
@@ -36,11 +36,11 @@ pub trait DrawTextedit {
         }
     }
 
-    fn draw_line_numbers(&mut self, contents: &str, params: &TextParams, double_space: bool) {
+    fn draw_line_numbers(&mut self, contents: &str, params: &TextParams, spacing: Option<f32>) {
         let mut y: f32 = self.vert_gap() - self.mouse_wheel_y();
         let x = self.indent() / 2.0 - self.font_size() + TOOLBAR_SIZE;
-        let extra_space = if double_space {
-            2.0
+        let extra_space = if spacing.is_some() {
+            spacing.unwrap()
         } else {
             1.0
         };
@@ -55,7 +55,7 @@ pub trait DrawTextedit {
         }
     }
 
-    fn draw_cursor(&mut self, contents: &str, font: &Font, double_space: bool) {
+    fn draw_cursor(&mut self, contents: &str, font: &Font, spacing: Option<f32>) {
         // todo: save the cursors pre clamp location
         // todo: so that the cursor, can jump back to it if it hits a line >= the re clamp size
         let font_option = Option::from(font);
@@ -69,12 +69,11 @@ pub trait DrawTextedit {
         if line_start != 0{
             line_start += 1;
         }
-        // this looks odd, but when it's the other way
-        // the cursor will jump down for a frame while typing
-        let extra_space = if !double_space {
-            1.0
+
+        let extra_space = if spacing.is_some() {
+            spacing.unwrap()
         } else {
-            2.0
+            1.0
         };
         let range: &str = &contents[line_start..self.textedit().pointer];
         let chars_before: f32 = measure_text(range,

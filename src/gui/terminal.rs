@@ -46,9 +46,11 @@ impl TerminalGui {
             ..Default::default()
         };
 
+        // get the vertical length of the response
+
         self.read_inputs();
-        self.draw_contents(&contents, &params, true);
-        self.draw_cursor(&contents, &font, true);
+        self.draw_contents(&contents, &params, None);
+        self.draw_cursor(&contents, &font, None);
     }
 
     fn read_inputs(&mut self) {

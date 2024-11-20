@@ -15,6 +15,7 @@ impl Terminal {
         }
     }
 
+
     // todo: get last command and generate a response
 }
 
