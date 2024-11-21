@@ -43,9 +43,9 @@ impl Textedit {
     }
 }
 impl Context for Textedit {
-    fn name(&self) -> &'static str { "Editor" }
-    fn get_pointer(&self) -> usize { self.pointer}
-    fn set_pointer(&mut self, pos: usize) { self.pointer = pos;}
-    fn get_buffer(&self) -> &Vec<u8> { &self.buffer }
-    fn get_buffer_mut(&mut self) -> &mut Vec<u8> { &mut self.buffer }
+    // fn name(&self) -> &'static str { "Editor" }
+    // fn get_pointer(&self) -> usize { self.pointer}
+    // fn set_pointer(&mut self, pos: usize) { self.pointer = pos;}
+    // fn get_buffer(&self) -> &Vec<u8> { &self.buffer }
+    // fn get_buffer_mut(&mut self) -> &mut Vec<u8> { &mut self.buffer }
 }

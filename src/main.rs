@@ -16,9 +16,8 @@ mod terminal;
 mod constants;
 mod math;
 
-use macroquad::prelude::*;
-use crate::gui::editor::EditorGui;
 use crate::gui::GuiManager;
+use macroquad::prelude::*;
 
 fn window_conf() -> Conf {
     Conf {

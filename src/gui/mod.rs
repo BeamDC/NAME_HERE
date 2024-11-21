@@ -2,8 +2,8 @@ use macroquad::prelude::Font;
 use crate::gui::editor::EditorGui;
 use crate::gui::terminal::TerminalGui;
 use crate::gui::toolbar::{Icons, Toolbar};
-use gui::Gui;
-use input_handler::GlobalInputHandle;
+// use gui::Gui;
+// use input_handler::GlobalInputHandle;
 
 pub(crate)mod editor;
 pub(crate)mod toolbar;
@@ -16,7 +16,6 @@ pub mod drawing;
 enum PossibleGuis {
     Editor,
     Terminal,
-    None,
 }
 
 pub struct GuiManager {
@@ -58,7 +57,6 @@ impl GuiManager {
         match self.active {
             PossibleGuis::Editor => { self.editor.draw(); },
             PossibleGuis::Terminal => { self.terminal.draw(); }
-            _ => {}
         }
         // println!("{:?}", self.active);
         // draw the toolbar

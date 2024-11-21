@@ -21,16 +21,17 @@ T:  Default + Clone + Add<Output = T>
             data
         }
     }
+
+    pub fn transpose(matrix: Matrix<T>) -> Matrix<T> {
+
+        if matrix.width * matrix.height == 0 {
+            matrix
+        }
+
+        else {
+            matrix
+        }
+
+    }
 }
 
-pub fn transpose<T>(matrix: Matrix<T>) -> Matrix<T> {
-
-    if matrix.width * matrix.height == 0 {
-        matrix
-    }
-
-    else {
-        matrix
-    }
-
-}

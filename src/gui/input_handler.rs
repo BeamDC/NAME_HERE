@@ -1,20 +1,12 @@
-use std::any::{type_name, Any};
-use std::cmp::max;
-use std::process::id;
-use std::time::Instant;
+use crate::editor::texteditor::Textedit;
+use crate::gui::gui::Gui;
+use crate::gui::toolbar::{Icons, Toolbar};
 use macroquad::color::{Color, WHITE};
 use macroquad::input::{is_key_down, is_mouse_button_pressed, mouse_position, KeyCode, MouseButton};
-use macroquad::math::{Rect, Vec2};
-use macroquad::miniquad::CursorIcon::Default;
 use macroquad::prelude::{draw_rectangle_lines, draw_text_ex, measure_text};
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{Font, TextParams};
-use crate::editor::texteditor::Textedit;
-use crate::gui::editor::EditorGui;
-use crate::gui::toolbar::{Icons, Toolbar};
-use crate::editor::context::Context;
-use crate::gui::gui::Gui;
-use crate::terminal::terminal::Terminal;
+use std::cmp::max;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {
@@ -594,7 +586,7 @@ pub trait ToolbarHandle {
         self.set_toolbar(toolbar);
     }
     fn show_tooltip(&mut self, textonly: bool) {
-        let mut toolbar = self.get_toolbar();
+        let toolbar = self.get_toolbar();
         if toolbar.hovered.is_none() { return }
         let (mx,my) = mouse_position();
         let font = self.get_font();

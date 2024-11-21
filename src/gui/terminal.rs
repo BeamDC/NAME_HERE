@@ -1,13 +1,12 @@
 use crate::editor::texteditor::Textedit;
-use crate::terminal::terminal::Terminal;
 use crate::gui::drawing::DrawTextedit;
 use crate::gui::gui::Gui;
 use crate::gui::input_handler::GlobalInputHandle;
+use crate::terminal::terminal::Terminal;
 use macroquad::color::WHITE;
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
 use macroquad::prelude::{Font, TextParams};
-use macroquad::text::measure_text;
 
 #[derive(Clone)]
 pub struct TerminalGui {
