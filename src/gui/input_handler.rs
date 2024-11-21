@@ -1,6 +1,7 @@
 use std::any::{type_name, Any};
 use std::cmp::max;
 use std::process::id;
+use std::time::Instant;
 use macroquad::color::{Color, WHITE};
 use macroquad::input::{is_key_down, is_mouse_button_pressed, mouse_position, KeyCode, MouseButton};
 use macroquad::math::{Rect, Vec2};
@@ -301,6 +302,7 @@ pub trait GlobalInputHandle {
                 }
             }
             KeyCode::Left => {
+                // if self.gui().name() == "Terminal" {return}
                 if editor.pointer > 0 {
                     editor.pointer -= 1;
                 }
@@ -338,6 +340,7 @@ pub trait GlobalInputHandle {
                 editor.pointer = ptr;
             }
             KeyCode::Up => {
+                // if self.gui().name() == "Terminal" {return}
                 let buffer = &editor.buffer;
                 let current_line_start = buffer[..editor.pointer]
                     .iter()
@@ -369,6 +372,7 @@ pub trait GlobalInputHandle {
                 }
             }
             KeyCode::Backspace => {
+                if self.gui().name() == "Terminal" {return}
                 if editor.pointer > 0 {
                     editor.buffer.remove(editor.pointer - 1);
                     editor.pointer -= 1;

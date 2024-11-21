@@ -1,3 +1,4 @@
+use std::time::Instant;
 use crate::editor::texteditor::Textedit;
 use crate::terminal::terminal::Terminal;
 use crate::gui::drawing::DrawTextedit;
@@ -47,7 +48,6 @@ impl TerminalGui {
         };
 
         // get the vertical length of the response
-
         self.read_inputs();
         self.draw_contents(&contents, &params, None);
         self.draw_cursor(&contents, &font, None);
