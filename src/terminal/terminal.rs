@@ -1,10 +1,25 @@
 use crate::editor::texteditor::Textedit;
 use crate::editor::context::Context;
 
+// use this later for more advanced responses
+#[derive(Clone)]
+pub struct TerminalResponse {
+    pub response: String,
+}
+
 #[derive(Clone)]
 pub struct Terminal {
     pub textedit: Textedit,
-    pub responses: Vec<String>,
+    pub responses: Vec<TerminalResponse>,
+    pub current_response: TerminalResponse,
+}
+
+impl TerminalResponse {
+    pub fn new() -> Self {
+        Self {
+            response: String::new(),
+        }
+    }
 }
 
 impl Terminal {
@@ -12,11 +27,33 @@ impl Terminal {
         Self {
             textedit: Textedit::new(),
             responses: Vec::new(),
+            current_response: TerminalResponse::new(),
         }
     }
 
+    pub fn get_command(&self) -> String {
+        let last_line = self.textedit.buffer
+            .iter()
+            .rposition(|&x| x == b'\n');
+        let slice = match last_line {
+            Some(pos) => &self.textedit.buffer[pos + 1..],
+            None => &self.textedit.buffer,
+        };
+        String::from_utf8(slice.to_vec()).unwrap()
+    }
 
-    // todo: get last command and generate a response
+    pub fn get_response(&mut self){
+        let response_string = self.get_command();
+
+        let response = TerminalResponse {
+            response: response_string,
+        };
+        self.current_response = response;
+    }
+
+    pub fn add_response(&mut self){
+        self.responses.push(self.current_response.clone());
+    }
 }
 
 impl Context for Terminal {

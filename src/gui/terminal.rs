@@ -1,4 +1,3 @@
-use std::time::Instant;
 use crate::editor::texteditor::Textedit;
 use crate::terminal::terminal::Terminal;
 use crate::gui::drawing::DrawTextedit;
@@ -8,6 +7,7 @@ use macroquad::color::WHITE;
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
 use macroquad::prelude::{Font, TextParams};
+use macroquad::text::measure_text;
 
 #[derive(Clone)]
 pub struct TerminalGui {
@@ -47,10 +47,12 @@ impl TerminalGui {
             ..Default::default()
         };
 
-        // get the vertical length of the response
+        //
         self.read_inputs();
-        self.draw_contents(&contents, &params, None);
-        self.draw_cursor(&contents, &font, None);
+        self.terminal.get_response();
+        println!("{}", self.terminal.current_response.response);
+        self.draw_contents(&contents, &params, Some(2.0));
+        self.draw_cursor(&contents, &font, Some(2.0));
     }
 
     fn read_inputs(&mut self) {
@@ -69,7 +71,7 @@ impl Gui for TerminalGui {
 impl GlobalInputHandle for TerminalGui {
     type GuiType = TerminalGui;
     fn key(&self) -> Option<KeyCode> { self.key }
-    fn context(&self) -> Textedit { self.terminal.textedit.clone() } // I really don't want to do this
+    fn textedit(&self) -> Textedit { self.terminal.textedit.clone() } // I really don't want to do this
     fn gui(&self) -> Self::GuiType { self.clone() } // I really don't want to do this
     fn set_context(&mut self, new_textedit: Textedit) { self.terminal.textedit = new_textedit; }
     fn set_gui(&mut self, new_gui: Self::GuiType) { *self = new_gui; }

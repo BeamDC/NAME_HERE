@@ -70,7 +70,7 @@ impl EditorGui {
 impl GlobalInputHandle for EditorGui {
     type GuiType = EditorGui;
     fn key(&self) -> Option<KeyCode> { self.key }
-    fn context(&self) -> Textedit { self.textedit.clone() } // I really don't want to do this
+    fn textedit(&self) -> Textedit { self.textedit.clone() } // I really don't want to do this
     fn gui(&self) -> Self::GuiType { self.clone() } // I really don't want to do this
     fn set_context(&mut self, new_textedit: Textedit) { self.textedit = new_textedit; }
     fn set_gui(&mut self, new_gui: Self::GuiType) { *self = new_gui; }

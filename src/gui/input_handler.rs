@@ -14,6 +14,7 @@ use crate::gui::editor::EditorGui;
 use crate::gui::toolbar::{Icons, Toolbar};
 use crate::editor::context::Context;
 use crate::gui::gui::Gui;
+use crate::terminal::terminal::Terminal;
 
 macro_rules! insert_u8 {
     ($e1: expr, $e2: expr) => {
@@ -24,7 +25,8 @@ macro_rules! insert_u8 {
 pub trait GlobalInputHandle {
     type GuiType: Gui;
     fn key(&self) -> Option<KeyCode>;
-    fn context(&self) -> Textedit;
+    fn textedit(&self) -> Textedit;
+    // fn terminal(&self) -> Option<Terminal>;
     fn gui(&self) -> Self::GuiType;
     fn set_context(&mut self, new_context: Textedit);
     fn set_gui(&mut self, new_gui: Self::GuiType);
@@ -56,7 +58,7 @@ pub trait GlobalInputHandle {
         }
     }
     fn parse_control_inputs(&mut self, key: KeyCode) {
-        let mut editor = self.context();
+        let mut editor = self.textedit();
         match key {
             KeyCode::S => { // save the editor contents to the open file
                 editor.write().unwrap();
@@ -91,7 +93,7 @@ pub trait GlobalInputHandle {
         self.set_context(editor);
     }
     fn parse_alt_inputs(&mut self, key: KeyCode) {
-        let mut editor = self.context();
+        let mut editor = self.textedit();
         match key {
             _ => {}
         }
@@ -104,7 +106,7 @@ pub trait GlobalInputHandle {
         self.set_context(editor);
     }
     fn parse_shift_inputs(&mut self, key: KeyCode) {
-        let mut editor = self.context();
+        let mut editor = self.textedit();
         match key {
             // TODO: this is for selection
             // KeyCode::Right => {
@@ -294,7 +296,7 @@ pub trait GlobalInputHandle {
         self.set_context(editor);
     }
     fn parse_general_inputs(&mut self, key: KeyCode) {
-        let mut editor = self.context();
+        let mut editor = self.textedit();
         match key {
             KeyCode::Right => {
                 if editor.pointer < editor.buffer.len() - 1 {
