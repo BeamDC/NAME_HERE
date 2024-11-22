@@ -60,20 +60,20 @@ pub struct Lexer<'a> {
     pub src: &'a str,
     chars: Peekable<Chars<'a>>, // might only need .chars(), re evaluate when complete
     pub tokens: Vec<Token>,
-    operators: HashMap<&'a str, (usize, usize)>,
+    operators: HashMap<String, (usize, usize)>,
 }
 
 impl Lexer<'_> {
     pub fn new(src: &str) -> Lexer {
-        let mut operators: HashMap<&str, (usize, usize)> = HashMap::new();
+        let mut operators: HashMap<String, (usize, usize)> = HashMap::new();
         // binary operators
-        operators.insert("+", (1, 2));
-        operators.insert("-", (1, 2));
-        operators.insert("*", (3, 2));
-        operators.insert("/", (3, 2));
+        operators.insert("+".to_string(), (1, 2));
+        operators.insert("-".to_string(), (1, 2));
+        operators.insert("*".to_string(), (3, 2));
+        operators.insert("/".to_string(), (3, 2));
         // unary operators
-        operators.insert("u+", (100, 1));
-        operators.insert("u-", (100, 1));
+        operators.insert("u+".to_string(), (100, 1));
+        operators.insert("u-".to_string(), (100, 1));
 
         Lexer {
             src: "",
