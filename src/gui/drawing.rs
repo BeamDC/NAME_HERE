@@ -1,4 +1,4 @@
-use macroquad::color::{GRAY, RED};
+use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::prelude::{draw_rectangle, draw_text_ex, Font, TextParams};
 use macroquad::text::measure_text;
 use crate::constants::TOOLBAR_SIZE;
@@ -24,7 +24,7 @@ pub trait DrawTextedit {
             if char == '\0' { break; }
             if char == '\r' { continue; }
             if char == '\n' {
-                y_offset += self.font_size() * extra_space; // double if in termina;
+                y_offset += self.font_size() * extra_space;
                 x_offset = self.indent() + TOOLBAR_SIZE;
                 continue;
             }

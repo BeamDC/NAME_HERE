@@ -46,11 +46,10 @@ impl TerminalGui {
             ..Default::default()
         };
 
-        //
         self.read_inputs();
-        self.terminal.get_response();
-        println!("{}", self.terminal.current_response.response);
-        self.draw_contents(&contents, &params, Some(2.0));
+        // self.terminal.get_response();
+        // println!("{:?}", self.terminal.responses);
+        self.draw_contents(&contents, &params, Some(1.0));
         self.draw_cursor(&contents, &font, Some(2.0));
     }
 

@@ -2,7 +2,7 @@ use crate::editor::texteditor::Textedit;
 use crate::editor::context::Context;
 
 // use this later for more advanced responses
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TerminalResponse {
     pub response: String,
 }

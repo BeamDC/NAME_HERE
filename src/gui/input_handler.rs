@@ -333,7 +333,8 @@ pub trait GlobalInputHandle {
                 // if ptr move crossed 2 newlines, move ptr back two
                 editor.pointer = ptr;
             }
-            KeyCode::Up => {
+            KeyCode::Up =>
+                {
                 // if self.gui().name() == "Terminal" {return}
                 let buffer = &editor.buffer;
                 let current_line_start = buffer[..editor.pointer]
