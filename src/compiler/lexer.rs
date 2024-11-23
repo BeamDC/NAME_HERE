@@ -34,7 +34,7 @@ const KEYWORDS: [&str; 8] = [
     "return", "if", "else", "for", "while", "bool", "false", "true"
 ];
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Token {
     Unknown(String),
     Keyword(String),
@@ -117,7 +117,7 @@ impl Lexer<'_> {
         let mut angled_balance: isize = 0;
 
         let mut current_char: char = self.chars.next().unwrap_or( '\0' );
-        while current_char != '\0' {
+        while current_char != '\0' { // todo: add bool, so that when eof is hit, we run through one more time to finish any existing tokens
             match current_state {
                 State::New => { // Determine the type of the token to be created
                     current_value.clear();
@@ -132,7 +132,7 @@ impl Lexer<'_> {
                     else if REAL_DIGITS[current_char as usize] {
                         // base 10, will later add a case for non-decimal numbers
                         next_state = State::Numeric;
-                        current_char = self.chars.next().unwrap_or( '\0' );
+                        // current_char = self.chars.next().unwrap_or( '\0' );
                     }
                     else if OPERATORS[current_char as usize] {
                         next_state = State::Operator;
@@ -182,7 +182,6 @@ impl Lexer<'_> {
                         }
                         current_value.push(current_char);
                         current_char = self.chars.next().unwrap_or( '\0' );
-                        next_state = State::Complete;
                     }else {
                         if IDENT_CHARS[current_char as usize] {
                             panic!("Unexpected character in numeric value");
@@ -313,5 +312,11 @@ impl Lexer<'_> {
             }
             current_state = next_state;
         }
+
+        // on exit, check if a token was still being accumulated,
+        // if so, add it
+        // if !current_value.is_empty() {
+        //     self.tokens.push(current_token.clone());
+        // }
     }
 }
