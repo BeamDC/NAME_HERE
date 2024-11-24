@@ -7,6 +7,7 @@
  *
  * This will have to be cleaned up, i cant handle the nesting
  */
+use std::cmp::PartialEq;
 use std::collections::HashMap;
 use std::iter::Peekable;
 use std::str::Chars;
@@ -41,9 +42,9 @@ pub enum Token {
     Ident(String),
     String(String),
     Operator(String),
-    Separator(String),
     Numeric(String),
-    EndOfLine(String),
+    Separator(char),
+    EndOfLine(char),
     Lparen(char),
     Rparen(char),
     Lsquare(char),
@@ -67,13 +68,23 @@ impl Lexer<'_> {
     pub fn new(src: &str) -> Lexer {
         let mut operators: HashMap<String, (usize, usize)> = HashMap::new();
         // binary operators
-        operators.insert("+".to_string(), (1, 2));
-        operators.insert("-".to_string(), (1, 2));
-        operators.insert("*".to_string(), (3, 2));
-        operators.insert("/".to_string(), (3, 2));
+        operators.insert("*".to_string(), (6, 2));
+        operators.insert("/".to_string(), (6, 2));
+        operators.insert("%".to_string(), (6, 2));
+        operators.insert("+".to_string(), (5, 2));
+        operators.insert("-".to_string(), (5, 2));
+        // bitwise operators
+        operators.insert("<<".to_string(), (4, 2));
+        operators.insert(">>".to_string(), (4, 2));
+        operators.insert("&".to_string(), (3, 2));
+        operators.insert("^".to_string(), (2, 2));
+        operators.insert("|".to_string(), (1, 2));
         // unary operators
         operators.insert("u+".to_string(), (100, 1));
         operators.insert("u-".to_string(), (100, 1));
+        operators.insert("++".to_string(), (100, 1));
+        operators.insert("--".to_string(), (100, 1));
+        operators.insert("~".to_string(), (100, 1));
 
         Lexer {
             src: "",
@@ -84,7 +95,7 @@ impl Lexer<'_> {
     }
 
     pub fn parse(&mut self) {
-        #[derive(Clone, Copy)]
+        #[derive(Clone, Copy, PartialEq)]
         enum State {
             New,
             String,
@@ -117,7 +128,7 @@ impl Lexer<'_> {
         let mut angled_balance: isize = 0;
 
         let mut current_char: char = self.chars.next().unwrap_or( '\0' );
-        while current_char != '\0' { // todo: add bool, so that when eof is hit, we run through one more time to finish any existing tokens
+        while current_char != '\0' || current_state != State::New{
             match current_state {
                 State::New => { // Determine the type of the token to be created
                     current_value.clear();
@@ -154,7 +165,6 @@ impl Lexer<'_> {
                                 next_state = State::String;
                             },
                             _ => {
-                                current_value.push(current_char);
                                 next_state = State::Name
                             },
                         }
@@ -163,7 +173,7 @@ impl Lexer<'_> {
                 State::String => {
                     if current_char == '"' {
                         current_char = self.chars.next().unwrap_or( '\0' );
-                        current_value.push(current_char);
+                        // current_value.push(current_char);
                         current_token = Token::String(current_value.clone());
                         next_state = State::Complete;
                     }
@@ -176,7 +186,7 @@ impl Lexer<'_> {
                     if REAL_DIGITS[current_char as usize] {
                         if current_char == '.' {
                             if decimal_found {
-                                panic!("Unexpected character in numeric value");
+                                panic!("Unexpected character in numeric value : {:?}", current_char);
                             }
                             else { decimal_found = true; }
                         }
@@ -184,7 +194,7 @@ impl Lexer<'_> {
                         current_char = self.chars.next().unwrap_or( '\0' );
                     }else {
                         if IDENT_CHARS[current_char as usize] {
-                            panic!("Unexpected character in numeric value");
+                            panic!("Unexpected character in numeric value : {:?}", current_char);
                         }
                         else {
                             current_token = Token::Numeric(current_value.clone());
@@ -197,7 +207,7 @@ impl Lexer<'_> {
                     if OPERATORS[current_char as usize] {
                         current_value.push(current_char);
                         if self.operators.contains_key(&current_value) {
-                            current_value.push(current_char);
+                            // current_value.push(current_char);
                             current_char = self.chars.next().unwrap_or( '\0' );
                         }
                         else {
@@ -217,75 +227,65 @@ impl Lexer<'_> {
                             next_state = State::Complete;
                         }
                         else {
-                            panic!("Unexpected operator");
+                            panic!("Unexpected operator {:?}", current_value);
                         }
                     }
                 },
                 State::Lparen => {
-                    current_value.push(current_char);
                     current_token = Token::Lparen(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     paren_balance += 1;
                     next_state = State::Complete;
                 },
                 State::Rparen => {
-                    current_value.push(current_char);
                     current_token = Token::Rparen(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     paren_balance -= 1;
                     next_state = State::Complete;
                 },
                 State::Lsquare => {
-                    current_value.push(current_char);
                     current_token = Token::Lsquare(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     square_balance += 1;
                     next_state = State::Complete;
                 },
                 State::Rsquare => {
-                    current_value.push(current_char);
                     current_token = Token::Rsquare(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     square_balance -= 1;
                     next_state = State::Complete;
                 },
                 State::Lcurly => {
-                    current_value.push(current_char);
                     current_token = Token::Lcurly(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     curly_balance += 1;
                     next_state = State::Complete;
                 },
                 State::Rcurly => {
-                    current_value.push(current_char);
                     current_token = Token::Rcurly(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     curly_balance -= 1;
                     next_state = State::Complete;
                 },
                 State::Langled => {
-                    current_value.push(current_char);
                     current_token = Token::Langled(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     angled_balance += 1;
                     next_state = State::Complete;
                 },
                 State::Rangled => {
-                    current_value.push(current_char);
                     current_token = Token::Rangled(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     angled_balance -= 1;
                     next_state = State::Complete;
                 },
                 State::Separator => {
-                    current_value.push(current_char);
-                    current_token = Token::Separator(current_value.clone());
+                    current_token = Token::Separator(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     next_state = State::Complete;
                 },
                 State::EndOfLine => {
-                    current_value.push(current_char);
-                    current_token = Token::EndOfLine(current_value.clone());
+                    current_token = Token::EndOfLine(current_char);
                     current_char = self.chars.next().unwrap_or( '\0' );
                     next_state = State::Complete;
                 },
@@ -304,19 +304,12 @@ impl Lexer<'_> {
                         next_state = State::Complete;
                     }
                 },
-                State::Complete => {
+                State::Complete =>  {
                     self.tokens.push(current_token.clone());
                     next_state = State::New;
                 },
-                _ => {}
             }
             current_state = next_state;
         }
-
-        // on exit, check if a token was still being accumulated,
-        // if so, add it
-        // if !current_value.is_empty() {
-        //     self.tokens.push(current_token.clone());
-        // }
     }
 }
