@@ -31,8 +31,10 @@ const OPERATORS: [bool; 256] = make_lut(r"!$%^&*+-=#@?|`/\<>~");
 const IDENT_CHARS: [bool; 256] = make_lut(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890"
 );
-const KEYWORDS: [&str; 8] = [
-    "return", "if", "else", "for", "while", "bool", "false", "true"
+const KEYWORDS: [&str; 21] = [
+    "return", "if", "else", "for", "while", "bool", "false", "true",
+    "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64",
+    "f32", "f64", "char", "str", "void"
 ];
 
 #[derive(Clone, PartialEq, Debug)]
@@ -43,18 +45,45 @@ pub enum Token {
     String(String),
     Operator(String),
     Numeric(String),
-    Separator(char),
-    EndOfLine(char),
-    Lparen(char),
-    Rparen(char),
-    Lsquare(char),
-    Rsquare(char),
-    Lcurly(char),
-    Rcurly(char),
-    Langled(char),
-    Rangled(char),
-    Whitespace(char),
-    EOF(char),
+    Separator(String),
+    EndOfLine(String),
+    Lparen(String),
+    Rparen(String),
+    Lsquare(String),
+    Rsquare(String),
+    Lcurly(String),
+    Rcurly(String),
+    Langled(String),
+    Rangled(String),
+    Whitespace(String),
+    EOF(String),
+}
+
+impl Token { // another ugly function, but really useful
+    pub fn value(&self) -> String {
+        match self {
+            // todo : add case to remove 'u' from unary operators
+            // todo : add case to add quotes to strings
+            Token::Unknown(value) |
+            Token::Keyword(value) |
+            Token::Ident(value) |
+            Token::String(value) |
+            Token::Operator(value) |
+            Token::Numeric(value) |
+            Token::Separator(value) |
+            Token::EndOfLine(value) |
+            Token::Lparen(value) |
+            Token::Rparen(value) |
+            Token::Lsquare(value) |
+            Token::Rsquare(value) |
+            Token::Lcurly(value) |
+            Token::Rcurly(value) |
+            Token::Langled(value) |
+            Token::Rangled(value) |
+            Token::Whitespace(value) |
+            Token::EOF(value) => value.to_string(),
+        }
+    }
 }
 
 pub struct Lexer<'a> {
@@ -68,6 +97,7 @@ impl Lexer<'_> {
     pub fn new(src: &str) -> Lexer {
         let mut operators: HashMap<String, (usize, usize)> = HashMap::new();
         // binary operators
+        operators.insert("=".to_string(), (0, 2));
         operators.insert("*".to_string(), (6, 2));
         operators.insert("/".to_string(), (6, 2));
         operators.insert("%".to_string(), (6, 2));
@@ -83,6 +113,18 @@ impl Lexer<'_> {
         operators.insert("u+".to_string(), (100, 1));
         operators.insert("u-".to_string(), (100, 1));
         operators.insert("~".to_string(), (100, 1));
+        // logical operators
+        operators.insert("!".to_string(), (100, 2));
+        operators.insert("&&".to_string(), (100, 2));
+        operators.insert("||".to_string(), (100, 2));
+        // comparison operators
+        operators.insert("==".to_string(), (0, 2));
+        operators.insert("!=".to_string(), (0, 2));
+        operators.insert("<".to_string(), (0, 2));
+        operators.insert(">".to_string(), (0, 2));
+        operators.insert("<=".to_string(), (0, 2));
+        operators.insert(">=".to_string(), (0, 2));
+
 
         Lexer {
             src: "",
@@ -169,7 +211,8 @@ impl Lexer<'_> {
                     }
                 }
                 State::WhiteSpace => {
-                    current_token = Token::Whitespace(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Whitespace(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     // prev_state = State::WhiteSpace;
                     next_state = State::Complete;
@@ -247,69 +290,79 @@ impl Lexer<'_> {
                     }
                 },
                 State::Lparen => {
-                    current_token = Token::Lparen(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Lparen(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     paren_balance += 1;
                     prev_state = State::Lparen;
                     next_state = State::Complete;
                 },
                 State::Rparen => {
-                    current_token = Token::Rparen(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Rparen(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     paren_balance -= 1;
                     prev_state = State::Rparen;
                     next_state = State::Complete;
                 },
                 State::Lsquare => {
-                    current_token = Token::Lsquare(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Lsquare(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     square_balance += 1;
                     prev_state = State::Lsquare;
                     next_state = State::Complete;
                 },
                 State::Rsquare => {
-                    current_token = Token::Rsquare(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Rsquare(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     square_balance -= 1;
                     prev_state = State::Rsquare;
                     next_state = State::Complete;
                 },
                 State::Lcurly => {
-                    current_token = Token::Lcurly(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Lcurly(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     curly_balance += 1;
                     prev_state = State::Lcurly;
                     next_state = State::Complete;
                 },
                 State::Rcurly => {
-                    current_token = Token::Rcurly(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Rcurly(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     curly_balance -= 1;
                     prev_state = State::Rcurly;
                     next_state = State::Complete;
                 },
                 State::Langled => {
-                    current_token = Token::Langled(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Langled(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     angled_balance += 1;
                     prev_state = State::Langled;
                     next_state = State::Complete;
                 },
                 State::Rangled => {
-                    current_token = Token::Rangled(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Rangled(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     angled_balance -= 1;
                     prev_state = State::Rangled;
                     next_state = State::Complete;
                 },
                 State::Separator => {
-                    current_token = Token::Separator(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::Separator(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     prev_state = State::Separator;
                     next_state = State::Complete;
                 },
                 State::EndOfLine => {
-                    current_token = Token::EndOfLine(current_char);
+                    current_value.push(current_char);
+                    current_token = Token::EndOfLine(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     prev_state = State::EndOfLine;
                     next_state = State::Complete;

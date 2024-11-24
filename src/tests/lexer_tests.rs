@@ -55,12 +55,12 @@ fn brackets() {
     lx.parse();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Lparen('('));
-    assert_eq!(tokens[1], Token::Rparen(')'));
-    assert_eq!(tokens[2], Token::Lcurly('{'));
-    assert_eq!(tokens[3], Token::Rcurly('}'));
-    assert_eq!(tokens[4], Token::Lsquare('['));
-    assert_eq!(tokens[5], Token::Rsquare(']'));
+    assert_eq!(tokens[0], Token::Lparen("(".to_owned()));
+    assert_eq!(tokens[1], Token::Rparen(")".to_owned()));
+    assert_eq!(tokens[2], Token::Lcurly("{".to_owned()));
+    assert_eq!(tokens[3], Token::Rcurly("}".to_owned()));
+    assert_eq!(tokens[4], Token::Lsquare("[".to_owned()));
+    assert_eq!(tokens[5], Token::Rsquare("]".to_owned()));
     // assert_eq!(lx.tokens[6], Token::Langled('<'));
     // assert_eq!(lx.tokens[7], Token::Rangled('>'));
 }
@@ -84,6 +84,6 @@ fn misc() {
     lx.parse();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::EndOfLine(';'));
-    assert_eq!(tokens[1], Token::Separator(','));
+    assert_eq!(tokens[0], Token::EndOfLine(";".to_owned()));
+    assert_eq!(tokens[1], Token::Separator(",".to_owned()));
 }

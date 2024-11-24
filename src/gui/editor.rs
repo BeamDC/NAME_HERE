@@ -1,3 +1,4 @@
+use std::time::Instant;
 use crate::editor::texteditor::Textedit;
 use crate::gui::drawing::DrawTextedit;
 use crate::gui::gui::Gui;
@@ -6,6 +7,7 @@ use macroquad::color::{BLUE, GREEN, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
 use macroquad::text::{Font, TextParams};
+use crate::compiler::lexer::Lexer;
 
 #[derive(Clone)]
 pub struct EditorGui {
@@ -42,18 +44,22 @@ impl EditorGui {
             .unwrap();
 
         // TODO: THIS !!!!!!!
-        // let tokens = tokenize(&contents);
+        let t = Instant::now();
+        let mut lexer = Lexer::new(&contents);
+        lexer.parse();
+        let tokens = lexer.tokens;
+        println!("Tokenized in: {:?}", t.elapsed());
         // TODO: THIS !!!!!!!
 
         let font = self.font.clone();
         let params: TextParams = TextParams {
             font: Option::from(&font),
             font_size: self.font_size.clone() as u16,
-            color: WHITE,
+            // color: WHITE,
             ..Default::default()
         };
 
-        self.draw_contents(&contents, &params, None);
+        self.draw_tokens(tokens, &params);
         self.draw_cursor(&contents, &font, None);
         self.draw_line_numbers(&contents, &params, None);
     }

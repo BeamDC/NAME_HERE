@@ -1,16 +1,52 @@
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::prelude::{draw_rectangle, draw_text_ex, Font, TextParams};
 use macroquad::text::measure_text;
-use crate::constants::TOOLBAR_SIZE;
+use crate::compiler::lexer::Token;
+use crate::constants::{KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
 use crate::editor::texteditor::Textedit;
 
 // draw contents from a textedit buffer
 pub trait DrawTextedit {
     fn vert_gap(&self) -> f32;
+
     fn indent(&self) -> f32;
+
     fn font_size(&self) -> f32;
+
     fn mouse_wheel_y(&self) -> f32;
+
     fn textedit(&self) -> &Textedit;
+
+    fn draw_tokens(&mut self, tokens: Vec<Token>, text_params: &TextParams) {
+        let mut x_offset = self.indent() + TOOLBAR_SIZE;
+        let mut y_offset = self.vert_gap() - self.mouse_wheel_y();
+        let mut params = text_params.clone();
+        let mut contents: String;
+        for token in tokens {
+            match token {
+                Token::Numeric(_) => {params.color = NUMERIC_COLOR;}
+                Token::String(_) => {params.color = STRING_COLOR;}
+                Token::Operator(_) => {params.color = OPERATOR_COLOR;}
+                Token::Keyword(_) => {params.color = KEYWORD_COLOR;}
+                _ => {params.color = WHITE;}
+            }
+            contents = token.value();
+            if contents == "\r" {continue;}
+            if contents == "\n" {
+                y_offset += self.font_size();
+                x_offset = self.indent() + TOOLBAR_SIZE;
+                continue;
+            }
+            draw_text_ex(&contents,
+                         x_offset, y_offset,
+                         params.clone());
+            x_offset += measure_text(&contents,
+                                     params.font,
+                                     self.font_size() as u16,
+                                     1.0).width;
+        }
+    }
+
     fn draw_contents(&mut self, contents: &str, params: &TextParams, spacing: Option<f32>) {
         // when keyword coloring is added, this will have to change
         let mut y_offset = self.vert_gap() - self.mouse_wheel_y();

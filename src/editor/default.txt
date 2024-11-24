@@ -1,3 +1,5 @@
-fn main() {
-    Println!("Hello, World!")
+fn even(i32 val) -> bool {
+    return val % 2 == 0;
+    OR
+    return val & 1 == 0;
 }
