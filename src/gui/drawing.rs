@@ -2,7 +2,7 @@ use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::prelude::{draw_rectangle, draw_text_ex, Font, TextParams};
 use macroquad::text::measure_text;
 use crate::compiler::lexer::Token;
-use crate::constants::{COMMENT_COLOR, IDENT_COLOR, KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
+use crate::constants::{COMMENT_COLOR, FUNCTION_COLOR, IDENT_COLOR, KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
 use crate::editor::texteditor::Textedit;
 
 // draw contents from a textedit buffer
@@ -29,6 +29,7 @@ pub trait DrawTextedit {
                 Token::Operator(_) => {params.color = OPERATOR_COLOR;}
                 Token::Keyword(_) => {params.color = KEYWORD_COLOR;}
                 Token::Ident(_) => {params.color = IDENT_COLOR;}
+                Token::Function(_) => {params.color = FUNCTION_COLOR;}
                 Token::Comment(_) => {params.color = COMMENT_COLOR;}
                 _ => {params.color = WHITE;}
             }

@@ -44,6 +44,7 @@ const KEYWORDS: [&str; 21] = [
 pub enum Token {
     Unknown(String),
     Keyword(String),
+    Function(String),
     Ident(String),
     String(String),
     Operator(String),
@@ -69,6 +70,7 @@ impl Token {
             // todo : add case to add quotes to strings
             Token::Unknown(value) |
             Token::Keyword(value) |
+            Token::Function(value) |
             Token::Ident(value) |
             Token::Numeric(value) |
             Token::Separator(value) |
@@ -125,6 +127,7 @@ impl Lexer<'_> {
         operators.insert("u+".to_string(), (100, 1));
         operators.insert("u-".to_string(), (100, 1));
         operators.insert("~".to_string(), (100, 1));
+        operators.insert("->".to_string(), (100, 1));
         // logical operators
         operators.insert("!".to_string(), (100, 2));
         operators.insert("&&".to_string(), (100, 2));
@@ -393,6 +396,9 @@ impl Lexer<'_> {
                     else {
                         if KEYWORDS.contains(&current_value.as_str()) {
                             current_token = Token::Keyword(current_value.clone());
+                        }
+                        else if current_char == '(' {
+                            current_token = Token::Function(current_value.clone());
                         }
                         else {
                             current_token = Token::Ident(current_value.clone());

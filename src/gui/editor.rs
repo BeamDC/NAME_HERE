@@ -58,7 +58,7 @@ impl EditorGui {
             lexer.parse();
             self.tokens = lexer.tokens;
             println!("Tokenized in: {:?}", t.elapsed());
-            // println!("{:#?}", self.tokens);
+            println!("{:#?}", self.tokens);
             self.textedit.redraw = false;
         }
         self.draw_tokens(&self.tokens.clone(), &params);
