@@ -1,5 +1,14 @@
-fn even(i32 val) -> bool {
-    return val % 2 == 0;
-    OR
-    return val & 1 == 0;
+fn main() {
+    print("2 * 3 = {}", 2 * 3);
+}
+
+fn factorial(u64 n) -> u64 {
+    if n == 2 { return 2; }
+
+    return n * factorial(n - 1);
+}
+
+fn fast_sum(u64 end) {
+    ? sum all values from 0 to n
+    return (n * (n + 1)) / 2;
 }

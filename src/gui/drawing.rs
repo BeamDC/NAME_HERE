@@ -2,7 +2,7 @@ use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::prelude::{draw_rectangle, draw_text_ex, Font, TextParams};
 use macroquad::text::measure_text;
 use crate::compiler::lexer::Token;
-use crate::constants::{KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
+use crate::constants::{COMMENT_COLOR, IDENT_COLOR, KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
 use crate::editor::texteditor::Textedit;
 
 // draw contents from a textedit buffer
@@ -17,7 +17,7 @@ pub trait DrawTextedit {
 
     fn textedit(&self) -> &Textedit;
 
-    fn draw_tokens(&mut self, tokens: Vec<Token>, text_params: &TextParams) {
+    fn draw_tokens(&mut self, tokens: &Vec<Token>, text_params: &TextParams) {
         let mut x_offset = self.indent() + TOOLBAR_SIZE;
         let mut y_offset = self.vert_gap() - self.mouse_wheel_y();
         let mut params = text_params.clone();
@@ -28,6 +28,8 @@ pub trait DrawTextedit {
                 Token::String(_) => {params.color = STRING_COLOR;}
                 Token::Operator(_) => {params.color = OPERATOR_COLOR;}
                 Token::Keyword(_) => {params.color = KEYWORD_COLOR;}
+                Token::Ident(_) => {params.color = IDENT_COLOR;}
+                Token::Comment(_) => {params.color = COMMENT_COLOR;}
                 _ => {params.color = WHITE;}
             }
             contents = token.value();

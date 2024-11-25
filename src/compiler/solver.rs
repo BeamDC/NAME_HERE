@@ -1,4 +1,4 @@
 /*
- * A solver for mathematical expression using the Shunting Yard Algorithm
+ * A solver for mathematical expressions using the Shunting Yard Algorithm
  */
 

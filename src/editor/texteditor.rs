@@ -8,6 +8,7 @@ pub struct Textedit {
     pub file: Option<String>,
     pub buffer: Vec<u8>, // ascii 0 - 255 only :>
     pub pointer: usize,
+    pub redraw: bool
 }
 
 impl Textedit {
@@ -16,6 +17,7 @@ impl Textedit {
             file: None,
             buffer: vec![],
             pointer: 0,
+            redraw: true
         }
     }
 

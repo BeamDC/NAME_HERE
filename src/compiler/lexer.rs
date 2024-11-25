@@ -9,7 +9,6 @@
  */
 use std::cmp::PartialEq;
 use std::collections::HashMap;
-use std::iter::Peekable;
 use std::str::Chars;
 
 // Lookup tables
@@ -27,14 +26,18 @@ const fn make_lut(chars: &str) -> [bool; 256] {
 const WHITESPACE: [bool; 256] = make_lut(" \t\n\r");
 const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
 const REAL_DIGITS: [bool; 256] = make_lut(".0123456789");
-const OPERATORS: [bool; 256] = make_lut(r"!$%^&*+-=#@?|`/\<>~");
+const OPERATORS: [bool; 256] = make_lut(r"!$%^&*+-=#@|`/\<>~");
 const IDENT_CHARS: [bool; 256] = make_lut(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890"
 );
 const KEYWORDS: [&str; 21] = [
-    "return", "if", "else", "for", "while", "bool", "false", "true",
-    "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64",
-    "f32", "f64", "char", "str", "void"
+    "if", "else", "for", "while",
+    "bool", "false", "true",
+    "i8", "i16", "i32", "i64",
+    "u8", "u16", "u32", "u64",
+    "f32", "f64",
+    "char", "str",
+    "return", "fn"
 ];
 
 #[derive(Clone, PartialEq, Debug)]
@@ -47,6 +50,7 @@ pub enum Token {
     Numeric(String),
     Separator(String),
     EndOfLine(String),
+    Comment(String), // todo : add support for comments
     Lparen(String),
     Rparen(String),
     Lsquare(String),
@@ -56,10 +60,9 @@ pub enum Token {
     Langled(String),
     Rangled(String),
     Whitespace(String),
-    EOF(String),
 }
 
-impl Token { // another ugly function, but really useful
+impl Token {
     pub fn value(&self) -> String {
         match self {
             // todo : add case to remove 'u' from unary operators
@@ -67,11 +70,10 @@ impl Token { // another ugly function, but really useful
             Token::Unknown(value) |
             Token::Keyword(value) |
             Token::Ident(value) |
-            Token::String(value) |
-            Token::Operator(value) |
             Token::Numeric(value) |
             Token::Separator(value) |
             Token::EndOfLine(value) |
+            Token::Comment(value) |
             Token::Lparen(value) |
             Token::Rparen(value) |
             Token::Lsquare(value) |
@@ -80,8 +82,17 @@ impl Token { // another ugly function, but really useful
             Token::Rcurly(value) |
             Token::Langled(value) |
             Token::Rangled(value) |
-            Token::Whitespace(value) |
-            Token::EOF(value) => value.to_string(),
+            Token::Whitespace(value) => value.to_string(),
+
+            Token::String(value) => format!("\"{}\"", value),
+
+            Token::Operator(value) => {
+                if value.starts_with("u") {
+                    value[1..].to_string()
+                } else {
+                    value.to_string()
+                }
+            }
         }
     }
 }
@@ -93,6 +104,7 @@ pub struct Lexer<'a> {
     operators: HashMap<String, (usize, usize)>,
 }
 
+// todo: allow the lexer to have its source changed, make parse return the tokens instead of storing them
 impl Lexer<'_> {
     pub fn new(src: &str) -> Lexer {
         let mut operators: HashMap<String, (usize, usize)> = HashMap::new();
@@ -144,6 +156,7 @@ impl Lexer<'_> {
             Operator,
             Separator,
             Name,
+            Comment,
             EndOfLine,
             Lparen,
             Rparen,
@@ -200,6 +213,7 @@ impl Lexer<'_> {
                             '>' => next_state = State::Rangled,
                             ',' => next_state = State::Separator,
                             ';' => next_state = State::EndOfLine,
+                            '?' => next_state = State::Comment,
                             '"' => {
                                 current_char = self.chars.next().unwrap_or( '\0' );
                                 next_state = State::String;
@@ -218,7 +232,8 @@ impl Lexer<'_> {
                     next_state = State::Complete;
                 },
                 State::String => {
-                    if current_char == '"' {
+                    // we have to watch for the case where the string is not closed
+                    if current_char == '"' || current_char == '\0' {
                         current_char = self.chars.next().unwrap_or( '\0' );
                         // current_value.push(current_char);
                         current_token = Token::String(current_value.clone());
@@ -271,8 +286,11 @@ impl Lexer<'_> {
                             }
                         }
                     }else {
-                        let valid_unary = (current_value == "-" || current_value == "+")
-                            && prev_state != State::Numeric;
+                        let valid_prev = prev_state != State::Numeric;
+
+                        let valid_unary =
+                            (current_value == "-" || current_value == "+") && valid_prev;
+
                         if self.operators.contains_key(&current_value) && valid_unary {
                             current_value.insert(0, 'u');
                             current_token = Token::Operator(current_value.clone());
@@ -381,6 +399,16 @@ impl Lexer<'_> {
                         }
                         prev_state = State::Name;
                         next_state = State::Complete;
+                    }
+                },
+                State::Comment => {
+                    if current_char == '\n' || current_char == '\0' {
+                        current_token = Token::Comment(current_value.clone());
+                        next_state = State::Complete;
+                    }
+                    else {
+                        current_value.push(current_char);
+                        current_char = self.chars.next().unwrap_or( '\0' );
                     }
                 },
                 State::Complete =>  {

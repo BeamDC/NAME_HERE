@@ -31,7 +31,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let font = load_ttf_font("src/assets/fonts/VictorMono.ttf")
+    let font = load_ttf_font("src/assets/fonts/Hack.ttf")
         .await
         .unwrap();
     let mut app = GuiManager::new(font);

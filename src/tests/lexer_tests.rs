@@ -79,6 +79,17 @@ fn keywords() {
 }
 
 #[test]
+fn comments() {
+    let mut lx = Lexer::new("? this is a comment \n this isnt");
+    lx.parse();
+    let tokens = lx.tokens_filter_whitespace();
+    println!("{:?}", tokens);
+    assert_eq!(tokens[0], Token::Comment("? this is a comment ".to_owned()));
+    assert_eq!(tokens[1], Token::Ident("this".to_owned()));
+    assert_eq!(tokens[2], Token::Ident("isnt".to_owned()));
+}
+
+#[test]
 fn misc() {
     let mut lx = Lexer::new(r";,");
     lx.parse();

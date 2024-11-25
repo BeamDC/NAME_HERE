@@ -1,13 +1,12 @@
-use std::time::Instant;
+use crate::compiler::lexer::{Lexer, Token};
 use crate::editor::texteditor::Textedit;
 use crate::gui::drawing::DrawTextedit;
 use crate::gui::gui::Gui;
 use crate::gui::input_handler::GlobalInputHandle;
-use macroquad::color::{BLUE, GREEN, RED, WHITE};
 use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
 use macroquad::text::{Font, TextParams};
-use crate::compiler::lexer::Lexer;
+use std::time::Instant;
 
 #[derive(Clone)]
 pub struct EditorGui {
@@ -19,6 +18,7 @@ pub struct EditorGui {
     _mouse_wheel_x: f32,
     mouse_wheel_y: f32,
     key: Option<KeyCode>,
+    tokens: Vec<Token>,
 }
 
 impl EditorGui {
@@ -33,6 +33,7 @@ impl EditorGui {
             _mouse_wheel_x: 0.0, // this can help with trackpad support!
             mouse_wheel_y: 0.0,
             key: None,
+            tokens: vec![],
         }
     }
 
@@ -43,14 +44,6 @@ impl EditorGui {
         let contents  = String::from_utf8(self.textedit.buffer.clone())
             .unwrap();
 
-        // TODO: THIS !!!!!!!
-        let t = Instant::now();
-        let mut lexer = Lexer::new(&contents);
-        lexer.parse();
-        let tokens = lexer.tokens;
-        println!("Tokenized in: {:?}", t.elapsed());
-        // TODO: THIS !!!!!!!
-
         let font = self.font.clone();
         let params: TextParams = TextParams {
             font: Option::from(&font),
@@ -59,7 +52,16 @@ impl EditorGui {
             ..Default::default()
         };
 
-        self.draw_tokens(tokens, &params);
+        if self.textedit.redraw {
+            let t = Instant::now();
+            let mut lexer = Lexer::new(&contents);
+            lexer.parse();
+            self.tokens = lexer.tokens;
+            println!("Tokenized in: {:?}", t.elapsed());
+            println!("{:?}", self.tokens);
+            self.textedit.redraw = false;
+        }
+        self.draw_tokens(&self.tokens.clone(), &params);
         self.draw_cursor(&contents, &font, None);
         self.draw_line_numbers(&contents, &params, None);
     }

@@ -34,6 +34,7 @@ pub trait GlobalInputHandle {
                 } else {
                     self.parse_general_inputs(k)
                 }
+                self.textedit().redraw = true;
                 return
             }
             _ => {}
@@ -82,6 +83,7 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
+        editor.redraw = true;
         self.set_context(editor);
     }
     fn parse_alt_inputs(&mut self, key: KeyCode) {
@@ -95,6 +97,7 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
+        editor.redraw = true;
         self.set_context(editor);
     }
     fn parse_shift_inputs(&mut self, key: KeyCode) {
@@ -285,6 +288,7 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
+        editor.redraw = true;
         self.set_context(editor);
     }
     fn parse_general_inputs(&mut self, key: KeyCode) {
@@ -559,6 +563,7 @@ pub trait GlobalInputHandle {
         }
 
         // update editor
+        editor.redraw = true;
         self.set_context(editor);
     }
     fn mouse_input_left(&mut self, (x, y): (f32, f32)) {
@@ -567,9 +572,9 @@ pub trait GlobalInputHandle {
         self.set_gui(gui);
     }
     fn mouse_input_right(&mut self, (x, y): (f32, f32)) {
-        let mut editor = self.gui();
+        let mut gui = self.gui();
         // println!("RIGHT MOUSE PRESSED @ ({x}, {y})");
-        self.set_gui(editor);
+        self.set_gui(gui);
     }
 }
 
