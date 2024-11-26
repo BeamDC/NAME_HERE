@@ -57,8 +57,8 @@ impl EditorGui {
             let mut lexer = Lexer::new(&contents);
             lexer.parse();
             self.tokens = lexer.tokens;
-            println!("Tokenized in: {:?}", t.elapsed());
-            println!("{:#?}", self.tokens);
+            // println!("Tokenized in: {:?}", t.elapsed());
+            // println!("{:#?}", self.tokens);
             self.textedit.redraw = false;
         }
         self.draw_tokens(&self.tokens.clone(), &params);

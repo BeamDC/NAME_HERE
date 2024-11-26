@@ -1,3 +1,3 @@
 pub(crate) mod language_name;
 pub(crate) mod lexer;
-mod solver;
+pub(crate) mod solver;

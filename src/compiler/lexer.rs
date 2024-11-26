@@ -26,7 +26,7 @@ const fn make_lut(chars: &str) -> [bool; 256] {
 const WHITESPACE: [bool; 256] = make_lut(" \t\n\r");
 const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
 const REAL_DIGITS: [bool; 256] = make_lut(".0123456789");
-const OPERATORS: [bool; 256] = make_lut(r"!$%^&*+-=#@|`/\<>~");
+const OPERATORS: [bool; 256] = make_lut(r"!$%^&*+-=#@|`/\<>~.");
 const IDENT_CHARS: [bool; 256] = make_lut(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_1234567890"
 );
@@ -37,7 +37,7 @@ const KEYWORDS: [&str; 21] = [
     "u8", "u16", "u32", "u64",
     "f32", "f64",
     "char", "str",
-    "return", "fn"
+    "fn", "return",
 ];
 
 #[derive(Clone, PartialEq, Debug)]
@@ -99,53 +99,80 @@ impl Token {
     }
 }
 
+pub struct Operator {
+    pub precedence: usize,
+    pub args: usize,
+}
+
+impl Operator {
+    pub fn new(precedence: usize, args: usize) -> Operator {
+        Operator {
+            precedence,
+            args,
+        }
+    }
+}
+
+pub struct OperatorMap {
+    pub operators: HashMap<String, Operator>,
+}
+
+impl OperatorMap {
+    pub fn new() -> OperatorMap {
+        let mut operators: HashMap<String, Operator> = HashMap::new();
+        // binary operators
+        operators.insert("=".to_string(), Operator::new(0, 2));
+        operators.insert("*".to_string(), Operator::new(6, 2));
+        operators.insert("/".to_string(), Operator::new(6, 2));
+        operators.insert("%".to_string(), Operator::new(6, 2));
+        operators.insert("+".to_string(), Operator::new(5, 2));
+        operators.insert("-".to_string(), Operator::new(5, 2));
+        operators.insert("->".to_string(), Operator::new(100, 2));
+        operators.insert(".".to_string(), Operator::new(100, 2));
+        operators.insert("..".to_string(), Operator::new(100, 2));
+        operators.insert("..=".to_string(), Operator::new(100, 2));
+        // bitwise operators
+        operators.insert("<<".to_string(), Operator::new(4, 2));
+        operators.insert(">>".to_string(), Operator::new(4, 2));
+        operators.insert("&".to_string(), Operator::new(3, 2));
+        operators.insert("^".to_string(), Operator::new(2, 2));
+        operators.insert("|".to_string(), Operator::new(1, 2));
+        // unary operators
+        operators.insert("u+".to_string(), Operator::new(100, 1));
+        operators.insert("u-".to_string(), Operator::new(100, 1));
+        operators.insert("~".to_string(), Operator::new(100, 1));
+        // logical operators
+        operators.insert("!".to_string(), Operator::new(100, 2));
+        operators.insert("&&".to_string(), Operator::new(100, 2));
+        operators.insert("||".to_string(), Operator::new(100, 2));
+        // comparison operators
+        operators.insert("==".to_string(), Operator::new(0, 2));
+        operators.insert("!=".to_string(), Operator::new(0, 2));
+        operators.insert("<".to_string(), Operator::new(0, 2));
+        operators.insert(">".to_string(), Operator::new(0, 2));
+        operators.insert("<=".to_string(), Operator::new(0, 2));
+        operators.insert(">=".to_string(), Operator::new(0, 2));
+        OperatorMap {
+            operators,
+        }
+    }
+}
+
 pub struct Lexer<'a> {
     pub src: &'a str,
     chars: Chars<'a>,
     pub tokens: Vec<Token>,
-    operators: HashMap<String, (usize, usize)>,
+    operators: HashMap<String, Operator>,
 }
 
 // todo: allow the lexer to have its source changed, make parse return the tokens instead of storing them
 impl Lexer<'_> {
     pub fn new(src: &str) -> Lexer {
-        let mut operators: HashMap<String, (usize, usize)> = HashMap::new();
-        // binary operators
-        operators.insert("=".to_string(), (0, 2));
-        operators.insert("*".to_string(), (6, 2));
-        operators.insert("/".to_string(), (6, 2));
-        operators.insert("%".to_string(), (6, 2));
-        operators.insert("+".to_string(), (5, 2));
-        operators.insert("-".to_string(), (5, 2));
-        // bitwise operators
-        operators.insert("<<".to_string(), (4, 2));
-        operators.insert(">>".to_string(), (4, 2));
-        operators.insert("&".to_string(), (3, 2));
-        operators.insert("^".to_string(), (2, 2));
-        operators.insert("|".to_string(), (1, 2));
-        // unary operators
-        operators.insert("u+".to_string(), (100, 1));
-        operators.insert("u-".to_string(), (100, 1));
-        operators.insert("~".to_string(), (100, 1));
-        operators.insert("->".to_string(), (100, 1));
-        // logical operators
-        operators.insert("!".to_string(), (100, 2));
-        operators.insert("&&".to_string(), (100, 2));
-        operators.insert("||".to_string(), (100, 2));
-        // comparison operators
-        operators.insert("==".to_string(), (0, 2));
-        operators.insert("!=".to_string(), (0, 2));
-        operators.insert("<".to_string(), (0, 2));
-        operators.insert(">".to_string(), (0, 2));
-        operators.insert("<=".to_string(), (0, 2));
-        operators.insert(">=".to_string(), (0, 2));
-
-
         Lexer {
             src: "",
             chars: src.chars(),
             tokens: vec![],
-            operators,
+            operators: OperatorMap::new().operators,
         }
     }
 
@@ -172,7 +199,6 @@ impl Lexer<'_> {
             Complete,
         }
 
-        let mut prev_state: State = State::New;
         let mut current_state: State = State::New;
         let mut next_state: State = State::New;
 
@@ -196,7 +222,8 @@ impl Lexer<'_> {
                     if WHITESPACE[current_char as usize] {
                         next_state = State::WhiteSpace;
                     }
-                    else if REAL_DIGITS[current_char as usize] {
+                    // we dont allow a '.' to start a num
+                    else if INTEGER_DIGITS[current_char as usize] {
                         // base 10, will later add a case for non-decimal numbers
                         next_state = State::Numeric;
                         // current_char = self.chars.next().unwrap_or( '\0' );
@@ -240,7 +267,6 @@ impl Lexer<'_> {
                         current_char = self.chars.next().unwrap_or( '\0' );
                         // current_value.push(current_char);
                         current_token = Token::String(current_value.clone());
-                        prev_state = State::String;
                         next_state = State::Complete;
                     }
                     else {
@@ -264,7 +290,6 @@ impl Lexer<'_> {
                         }
                         else {
                             current_token = Token::Numeric(current_value.clone());
-                            prev_state = State::Numeric;
                             next_state = State::Complete;
                         }
                     }
@@ -280,7 +305,6 @@ impl Lexer<'_> {
                             current_value.pop();
                             if self.operators.contains_key(&current_value) {
                                 current_token = Token::Operator(current_value.clone());
-                                prev_state = State::Operator;
                                 next_state = State::Complete;
                             }
                             else {
@@ -289,7 +313,8 @@ impl Lexer<'_> {
                             }
                         }
                     }else {
-                        let valid_prev = prev_state != State::Numeric;
+                        let valid_prev = !matches!(self.tokens_filter_whitespace().last(),
+                            Some(Token::Numeric(_)));
 
                         let valid_unary =
                             (current_value == "-" || current_value == "+") && valid_prev;
@@ -297,12 +322,10 @@ impl Lexer<'_> {
                         if self.operators.contains_key(&current_value) && valid_unary {
                             current_value.insert(0, 'u');
                             current_token = Token::Operator(current_value.clone());
-                            prev_state = State::Operator;
                             next_state = State::Complete;
                         }
                         else if self.operators.contains_key(&current_value) {
                             current_token = Token::Operator(current_value.clone());
-                            prev_state = State::Operator;
                             next_state = State::Complete;
                         }
                         else {
@@ -315,7 +338,6 @@ impl Lexer<'_> {
                     current_token = Token::Lparen(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     paren_balance += 1;
-                    prev_state = State::Lparen;
                     next_state = State::Complete;
                 },
                 State::Rparen => {
@@ -323,7 +345,6 @@ impl Lexer<'_> {
                     current_token = Token::Rparen(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     paren_balance -= 1;
-                    prev_state = State::Rparen;
                     next_state = State::Complete;
                 },
                 State::Lsquare => {
@@ -331,7 +352,6 @@ impl Lexer<'_> {
                     current_token = Token::Lsquare(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     square_balance += 1;
-                    prev_state = State::Lsquare;
                     next_state = State::Complete;
                 },
                 State::Rsquare => {
@@ -339,7 +359,6 @@ impl Lexer<'_> {
                     current_token = Token::Rsquare(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     square_balance -= 1;
-                    prev_state = State::Rsquare;
                     next_state = State::Complete;
                 },
                 State::Lcurly => {
@@ -347,7 +366,6 @@ impl Lexer<'_> {
                     current_token = Token::Lcurly(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     curly_balance += 1;
-                    prev_state = State::Lcurly;
                     next_state = State::Complete;
                 },
                 State::Rcurly => {
@@ -355,7 +373,6 @@ impl Lexer<'_> {
                     current_token = Token::Rcurly(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     curly_balance -= 1;
-                    prev_state = State::Rcurly;
                     next_state = State::Complete;
                 },
                 State::Langled => {
@@ -363,7 +380,6 @@ impl Lexer<'_> {
                     current_token = Token::Langled(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     angled_balance += 1;
-                    prev_state = State::Langled;
                     next_state = State::Complete;
                 },
                 State::Rangled => {
@@ -371,21 +387,18 @@ impl Lexer<'_> {
                     current_token = Token::Rangled(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
                     angled_balance -= 1;
-                    prev_state = State::Rangled;
                     next_state = State::Complete;
                 },
                 State::Separator => {
                     current_value.push(current_char);
                     current_token = Token::Separator(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
-                    prev_state = State::Separator;
                     next_state = State::Complete;
                 },
                 State::EndOfLine => {
                     current_value.push(current_char);
                     current_token = Token::EndOfLine(current_value.clone());
                     current_char = self.chars.next().unwrap_or( '\0' );
-                    prev_state = State::EndOfLine;
                     next_state = State::Complete;
                 },
                 State::Name => {
@@ -397,13 +410,15 @@ impl Lexer<'_> {
                         if KEYWORDS.contains(&current_value.as_str()) {
                             current_token = Token::Keyword(current_value.clone());
                         }
-                        else if current_char == '(' {
+                        else if self.tokens_filter_whitespace()
+                            .last()
+                            .unwrap_or(&Token::Unknown("".to_owned()))
+                            .value() == "fn" {
                             current_token = Token::Function(current_value.clone());
                         }
                         else {
                             current_token = Token::Ident(current_value.clone());
                         }
-                        prev_state = State::Name;
                         next_state = State::Complete;
                     }
                 },
