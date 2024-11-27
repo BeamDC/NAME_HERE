@@ -221,6 +221,7 @@ impl Lexer<'_> {
                 State::Operator => {
                     if OPERATORS[current_char as usize] {
                         current_value.push(current_char);
+                        println!("{:?}", current_value);
                         if self.operators.contains_key(&current_value) {
                             current_char = self.chars.next().unwrap_or( '\0' );
                         }
@@ -238,7 +239,7 @@ impl Lexer<'_> {
                     }else {
                         let valid_prev = !(self.tokens_filter_whitespace()
                             .last()
-                            .unwrap()
+                            .unwrap_or(&Token::new(TokenType::Unknown, String::new()))
                             .token_type ==
                             TokenType::Numeric);
 
@@ -367,13 +368,12 @@ impl Lexer<'_> {
         }
     }
     pub fn tokens_filter_whitespace(&self) -> Vec<Token> {
-        self.tokens
-            .iter()
-            .filter(|&t| match t.token_type {
-                TokenType::Whitespace => false,
-                _ => true,
-            })
-            .cloned()
-            .collect()
+        let mut filtered_tokens: Vec<Token> = vec![];
+        for token in &self.tokens {
+            if token.token_type != TokenType::Whitespace {
+                filtered_tokens.push(token.clone());
+            }
+        }
+        filtered_tokens
     }
 }
