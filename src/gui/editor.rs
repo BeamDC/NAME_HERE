@@ -55,7 +55,7 @@ impl EditorGui {
         if self.textedit.redraw {
             let t = Instant::now();
             let mut lexer = Lexer::new(&contents);
-            lexer.parse();
+            lexer.tokenize();
             self.tokens = lexer.tokens;
             // println!("Tokenized in: {:?}", t.elapsed());
             // println!("{:#?}", self.tokens);

@@ -1,47 +1,47 @@
-use crate::compiler::lexer::{Lexer, Token};
+use crate::compiler::lexer::{Lexer, Token, TokenType};
 
 #[test]
 fn numbers() {
     let mut lx = Lexer::new(r"1 45 3.14 0.667");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Numeric("1".to_owned()));
-    assert_eq!(tokens[1], Token::Numeric("45".to_owned()));
-    assert_eq!(tokens[2], Token::Numeric("3.14".to_owned()));
-    assert_eq!(tokens[3], Token::Numeric("0.667".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Numeric, "1".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Numeric, "45".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Numeric, "3.14".to_owned()));
+    assert_eq!(tokens[3], Token::new(TokenType::Numeric, "0.667".to_owned()));
 }
 
 #[test]
 fn strings() {
     let mut lx = Lexer::new(r#""hello,""world!""#);
-    lx.parse();
+    lx.tokenize();
     println!("{:?}", lx.tokens);
-    assert_eq!(lx.tokens[0], Token::String("hello,".to_owned()));
-    assert_eq!(lx.tokens[1], Token::String("world!".to_owned()));
+    assert_eq!(lx.tokens[0], Token::new(TokenType::String, "hello,".to_owned()));
+    assert_eq!(lx.tokens[1], Token::new(TokenType::String, "world!".to_owned()));
 }
 
 #[test]
 fn identifiers() {
     let mut lx = Lexer::new(r"foo BAR BaZ");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Ident("foo".to_owned()));
-    assert_eq!(tokens[1], Token::Ident("BAR".to_owned()));
-    assert_eq!(tokens[2], Token::Ident("BaZ".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Ident, "foo".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Ident, "BAR".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Ident, "BaZ".to_owned()));
 }
 
 #[test]
 fn operators() {
     let mut lx = Lexer::new(r"-1+1 & <<");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Operator("u-".to_owned()));
-    assert_eq!(tokens[2], Token::Operator("+".to_owned()));
-    assert_eq!(tokens[4], Token::Operator("&".to_owned()));
-    assert_eq!(tokens[5], Token::Operator("<<".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Operator, "u-".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Operator, "+".to_owned()));
+    assert_eq!(tokens[4], Token::new(TokenType::Operator, "&".to_owned()));
+    assert_eq!(tokens[5], Token::new(TokenType::Operator, "<<".to_owned()));
 }
 
 #[test]
@@ -52,15 +52,15 @@ fn operators() {
 fn brackets() {
     let mut lx = Lexer::new(r"(){}[]");
     // let mut lx = Lexer::new(r"(){}[]<>");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Lparen("(".to_owned()));
-    assert_eq!(tokens[1], Token::Rparen(")".to_owned()));
-    assert_eq!(tokens[2], Token::Lcurly("{".to_owned()));
-    assert_eq!(tokens[3], Token::Rcurly("}".to_owned()));
-    assert_eq!(tokens[4], Token::Lsquare("[".to_owned()));
-    assert_eq!(tokens[5], Token::Rsquare("]".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Lparen, "(".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Rparen, ")".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Lcurly, "{".to_owned()));
+    assert_eq!(tokens[3], Token::new(TokenType::Rcurly, "}".to_owned()));
+    assert_eq!(tokens[4], Token::new(TokenType::Lsquare, "[".to_owned()));
+    assert_eq!(tokens[5], Token::new(TokenType::Rsquare, "]".to_owned()));
     // assert_eq!(lx.tokens[6], Token::Langled('<'));
     // assert_eq!(lx.tokens[7], Token::Rangled('>'));
 }
@@ -68,33 +68,33 @@ fn brackets() {
 #[test]
 fn keywords() {
     let mut lx = Lexer::new(r"if else while for return");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Keyword("if".to_owned()));
-    assert_eq!(tokens[1], Token::Keyword("else".to_owned()));
-    assert_eq!(tokens[2], Token::Keyword("while".to_owned()));
-    assert_eq!(tokens[3], Token::Keyword("for".to_owned()));
-    assert_eq!(tokens[4], Token::Keyword("return".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Keyword, "if".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Keyword, "else".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Keyword, "while".to_owned()));
+    assert_eq!(tokens[3], Token::new(TokenType::Keyword, "for".to_owned()));
+    assert_eq!(tokens[4], Token::new(TokenType::Keyword, "return".to_owned()));
 }
 
 #[test]
 fn comments() {
     let mut lx = Lexer::new("? this is a comment \n this isnt");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::Comment("? this is a comment ".to_owned()));
-    assert_eq!(tokens[1], Token::Ident("this".to_owned()));
-    assert_eq!(tokens[2], Token::Ident("isnt".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Comment, "? this is a comment".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::EndOfLine, "\n".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Ident, "this".to_owned()));
 }
 
 #[test]
 fn misc() {
     let mut lx = Lexer::new(r";,");
-    lx.parse();
+    lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::EndOfLine(";".to_owned()));
-    assert_eq!(tokens[1], Token::Separator(",".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::EndOfLine, ";".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Separator, ",".to_owned()));
 }

@@ -1,7 +1,7 @@
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::prelude::{draw_rectangle, draw_text_ex, Font, TextParams};
 use macroquad::text::measure_text;
-use crate::compiler::lexer::Token;
+use crate::compiler::lexer::{Token, TokenType};
 use crate::constants::{COMMENT_COLOR, FUNCTION_COLOR, IDENT_COLOR, KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
 use crate::editor::texteditor::Textedit;
 
@@ -23,17 +23,17 @@ pub trait DrawTextedit {
         let mut params = text_params.clone();
         let mut contents: String;
         for token in tokens {
-            match token {
-                Token::Numeric(_) => {params.color = NUMERIC_COLOR;}
-                Token::String(_) => {params.color = STRING_COLOR;}
-                Token::Operator(_) => {params.color = OPERATOR_COLOR;}
-                Token::Keyword(_) => {params.color = KEYWORD_COLOR;}
-                Token::Ident(_) => {params.color = IDENT_COLOR;}
-                Token::Function(_) => {params.color = FUNCTION_COLOR;}
-                Token::Comment(_) => {params.color = COMMENT_COLOR;}
+            match token.token_type {
+                TokenType::Numeric => {params.color = NUMERIC_COLOR;}
+                TokenType::String => {params.color = STRING_COLOR;}
+                TokenType::Operator => {params.color = OPERATOR_COLOR;}
+                TokenType::Keyword => {params.color = KEYWORD_COLOR;}
+                TokenType::Ident => {params.color = IDENT_COLOR;}
+                TokenType::Function => {params.color = FUNCTION_COLOR;}
+                TokenType::Comment => {params.color = COMMENT_COLOR;}
                 _ => {params.color = WHITE;}
             }
-            contents = token.value();
+            contents = token.value.clone();
             if contents == "\r" {continue;}
             if contents == "\n" {
                 y_offset += self.font_size();
