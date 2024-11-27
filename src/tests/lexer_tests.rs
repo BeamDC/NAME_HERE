@@ -84,9 +84,9 @@ fn comments() {
     lx.tokenize();
     let tokens = lx.tokens_filter_whitespace();
     println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::new(TokenType::Comment, "? this is a comment".to_owned()));
-    assert_eq!(tokens[1], Token::new(TokenType::EndOfLine, "\n".to_owned()));
-    assert_eq!(tokens[2], Token::new(TokenType::Ident, "this".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Comment, "? this is a comment ".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Ident, "this".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Ident, "isnt".to_owned()));
 }
 
 #[test]
