@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 pub enum Operation {
-    Binary(fn(f64, f64) -> f64),
-    BBitwise(fn(u64, u64) -> u64),
-    UBitwise(fn(u64) -> u64),
-    Unary(fn(f64) -> f64),
-    BLogical(fn(bool, bool) -> bool),
-    ULogical(fn(bool) -> bool),
-    Comparison(fn(f64, f64) -> bool),
+    Bin(fn(f64, f64) -> f64),
+    BinBit(fn(u64, u64) -> u64),
+    UnBit(fn(u64) -> u64),
+    Un(fn(f64) -> f64),
+    BinLog(fn(bool, bool) -> bool),
+    UnLog(fn(bool) -> bool),
+    Cmp(fn(f64, f64) -> bool),
 }
 
 pub struct Operator {
@@ -34,32 +34,32 @@ impl OperatorMap {
     pub fn new() -> OperatorMap {
         let mut operators: HashMap<String, Operator> = HashMap::new();
         // binary operators
-        operators.insert("*".to_string(), Operator::new(7, 2, Operation::Binary(mul)));
-        operators.insert("/".to_string(), Operator::new(7, 2, Operation::Binary(div)));
-        operators.insert("%".to_string(), Operator::new(7, 2, Operation::Binary(rem)));
-        operators.insert("+".to_string(), Operator::new(6, 2, Operation::Binary(add)));
-        operators.insert("-".to_string(), Operator::new(6, 2, Operation::Binary(sub)));
+        operators.insert("*".to_string(), Operator::new(7, 2, Operation::Bin(mul)));
+        operators.insert("/".to_string(), Operator::new(7, 2, Operation::Bin(div)));
+        operators.insert("%".to_string(), Operator::new(7, 2, Operation::Bin(rem)));
+        operators.insert("+".to_string(), Operator::new(6, 2, Operation::Bin(add)));
+        operators.insert("-".to_string(), Operator::new(6, 2, Operation::Bin(sub)));
         // bitwise operators
-        operators.insert("<<".to_string(), Operator::new(5, 2, Operation::BBitwise(lshift)));
-        operators.insert(">>".to_string(), Operator::new(5, 2, Operation::BBitwise(rshift)));
-        operators.insert("&".to_string(), Operator::new(4, 2, Operation::BBitwise(band)));
-        operators.insert("^".to_string(), Operator::new(3, 2, Operation::BBitwise(bxor)));
-        operators.insert("|".to_string(), Operator::new(2, 2, Operation::BBitwise(bor)));
-        operators.insert("~".to_string(), Operator::new(100, 1, Operation::UBitwise(bnot)));
+        operators.insert("<<".to_string(), Operator::new(5, 2, Operation::BinBit(lshift)));
+        operators.insert(">>".to_string(), Operator::new(5, 2, Operation::BinBit(rshift)));
+        operators.insert("&".to_string(), Operator::new(4, 2, Operation::BinBit(band)));
+        operators.insert("^".to_string(), Operator::new(3, 2, Operation::BinBit(bxor)));
+        operators.insert("|".to_string(), Operator::new(2, 2, Operation::BinBit(bor)));
+        operators.insert("~".to_string(), Operator::new(100, 1, Operation::UnBit(bnot)));
         // unary operators
-        operators.insert("u+".to_string(), Operator::new(100, 1, Operation::Unary(pos)));
-        operators.insert("u-".to_string(), Operator::new(100, 1, Operation::Unary(neg)));
+        operators.insert("u+".to_string(), Operator::new(100, 1, Operation::Un(pos)));
+        operators.insert("u-".to_string(), Operator::new(100, 1, Operation::Un(neg)));
         // logical operators
-        operators.insert("!".to_string(), Operator::new(100, 1, Operation::ULogical(not)));
-        operators.insert("&&".to_string(), Operator::new(100, 2, Operation::BLogical(and)));
-        operators.insert("||".to_string(), Operator::new(100, 2, Operation::BLogical(or)));
+        operators.insert("!".to_string(), Operator::new(100, 1, Operation::UnLog(not)));
+        operators.insert("&&".to_string(), Operator::new(100, 2, Operation::BinLog(and)));
+        operators.insert("||".to_string(), Operator::new(100, 2, Operation::BinLog(or)));
         // comparison operators
-        operators.insert("==".to_string(), Operator::new(1, 2, Operation::Comparison(eq)));
-        operators.insert("!=".to_string(), Operator::new(1, 2, Operation::Comparison(neq)));
-        operators.insert("<".to_string(), Operator::new(1, 2, Operation::Comparison(lt)));
-        operators.insert(">".to_string(), Operator::new(1, 2, Operation::Comparison(gt)));
-        operators.insert("<=".to_string(), Operator::new(1, 2, Operation::Comparison(leq)));
-        operators.insert(">=".to_string(), Operator::new(1, 2, Operation::Comparison(geq)));
+        operators.insert("==".to_string(), Operator::new(1, 2, Operation::Cmp(eq)));
+        operators.insert("!=".to_string(), Operator::new(1, 2, Operation::Cmp(neq)));
+        operators.insert("<".to_string(), Operator::new(1, 2, Operation::Cmp(lt)));
+        operators.insert(">".to_string(), Operator::new(1, 2, Operation::Cmp(gt)));
+        operators.insert("<=".to_string(), Operator::new(1, 2, Operation::Cmp(leq)));
+        operators.insert(">=".to_string(), Operator::new(1, 2, Operation::Cmp(geq)));
         // other ## Do nothing until there is a use for these
         // operators.insert("->".to_string(), Operator::new(100, 2));
         // operators.insert(".".to_string(), Operator::new(100, 2));

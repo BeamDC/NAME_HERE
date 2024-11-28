@@ -1,4 +1,4 @@
-use crate::compiler::lexer::{Lexer, Token};
+use crate::vm::token::{Token};
 use crate::editor::texteditor::Textedit;
 use crate::gui::drawing::DrawTextedit;
 use crate::gui::gui::Gui;
@@ -7,6 +7,7 @@ use macroquad::input::{get_last_key_pressed, mouse_wheel, KeyCode};
 use macroquad::math::clamp;
 use macroquad::text::{Font, TextParams};
 use std::time::Instant;
+use crate::vm::lexer::Lexer;
 
 #[derive(Clone)]
 pub struct EditorGui {
@@ -55,9 +56,8 @@ impl EditorGui {
         if self.textedit.redraw {
             let t = Instant::now();
             let mut lexer = Lexer::new(&contents);
-            lexer.tokenize();
-            self.tokens = lexer.tokens;
-            // println!("Tokenized in: {:?}", t.elapsed());
+            self.tokens = lexer.tokenize();
+            println!("Tokenized in: {:?}", t.elapsed());
             // println!("{:#?}", self.tokens);
             self.textedit.redraw = false;
         }
