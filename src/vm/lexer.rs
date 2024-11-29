@@ -5,35 +5,14 @@
  * repo -
  * book -
  */
-use crate::vm::operators::{Operator, OperatorMap};
 use crate::vm::token::{Token, TokenType};
 use itertools::{peek_nth, PeekNth};
-use std::collections::HashMap;
 use std::str::Chars;
-
-// Lookup tables
-const fn make_lut(chars: &str) -> [bool; 256] {
-    let mut lut = [false; 256];
-    let bytes = chars.as_bytes();
-    let mut i = 0;
-    while i < bytes.len() {
-        lut[bytes[i] as usize] = true;
-        i += 1;
-    }
-    lut
-}
-
-const WHITESPACE: [bool; 256] = make_lut(" \t\n\r\0");
-const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
-const IDENT_CHARS: [bool; 256] = make_lut(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
-);
+use crate::constants::{INTEGER_DIGITS, IDENT_CHARS, WHITESPACE};
 
 pub struct Lexer<'a> {
     pub src: &'a str,
     chars: PeekNth<Chars<'a>>,
-    pub tokens: Vec<Token>,
-    operators: HashMap<String, Operator>,
     start: usize,
     current: usize,
     line: usize,
@@ -45,8 +24,6 @@ impl Lexer<'_> {
         Lexer {
             src,
             chars     : peek_nth(src.chars()),
-            tokens    : vec![],
-            operators : OperatorMap::new().operators,
             start     : 0,
             current   : 0,
             line      : 0,
@@ -90,17 +67,18 @@ impl Lexer<'_> {
                 ';' => self.make_token(TokenType::Semicolon),
                 '.' => self.make_token(TokenType::Dot),
                 ',' => self.make_token(TokenType::Comma),
-                '+' => self.make_token(TokenType::Add),
-                '-' => self.make_token(TokenType::Sub),
-                '*' => self.make_token(TokenType::Mul),
-                '/' => self.make_token(TokenType::Div),
 
-                // match two chars
-                // todo : make match that handles multiple possibilities
-                '!' => self.match_token(&'=', TokenType::Neq, TokenType::Bang),
-                '=' => self.match_token(&'=', TokenType::Equal, TokenType::Assign),
-                '<' => self.match_token(&'=', TokenType::Leq, TokenType::Less),
-                '>' => self.match_token(&'=', TokenType::Geq, TokenType::Greater),
+
+                // match multi chars
+                '+' |
+                '-' |
+                '*' |
+                '/' |
+                '%' |
+                '<' |
+                '>' |
+                '!' |
+                '=' => self.operator(c),
 
                 // string
                 '"' => self.string(),
@@ -131,16 +109,21 @@ impl Lexer<'_> {
         )
     }
 
-    fn match_token(
-        &mut self,
-        expected: &char,
-        on_match: TokenType,
-        otherwise: TokenType) -> Token {
+    fn match_token(&mut self, expected: &char, on_match: TokenType, otherwise: TokenType) -> Token {
         if self.matches(expected) {
             self.make_token(on_match)
         }else {
             self.make_token(otherwise)
         }
+    }
+
+    fn match_multiple_token( &mut self, expected: Vec<&str>, on_match: Vec<TokenType>, otherwise: TokenType) -> Token {
+        for (i, c) in expected.iter().enumerate() {
+            if self.long_matches(c) {
+                return self.make_token(on_match[i]);
+            }
+        }
+        self.make_token(otherwise)
     }
 
     fn make_ident(&self) -> Token {
@@ -223,6 +206,65 @@ impl Lexer<'_> {
         self.make_ident()
     }
 
+    fn operator(&mut self, c: char) -> Token {
+        match c {
+            '+' => self.match_multiple_token(
+                vec![&"+",&"="],
+                vec![TokenType::Inc, TokenType::CompAdd],
+                TokenType::Add
+            ),
+
+            '-' => self.match_multiple_token(
+                vec![&"-",&"=",&">"],
+                vec![TokenType::Dec, TokenType::CompSub, TokenType::Arrow],
+                TokenType::Sub
+            ),
+
+            '*' => self.match_multiple_token(
+                vec![&"*",&"="],
+                vec![TokenType::Exp, TokenType::CompMul],
+                TokenType::Mul
+            ),
+
+            '/' => self.match_multiple_token(
+                vec![&"="],
+                vec![TokenType::CompDiv],
+                TokenType::Div
+            ),
+
+            '%' => self.match_multiple_token(
+                vec![&"="],
+                vec![TokenType::CompMod],
+                TokenType::Mod
+            ),
+
+            '<' => self.match_multiple_token(
+                vec![&"<=",&"=",&"<"],
+                vec![TokenType::CompLshift, TokenType::Leq, TokenType::Lshift],
+                TokenType::Less
+            ),
+
+            '>' => self.match_multiple_token(
+                vec![&">=",&"=",&">",],
+                vec![TokenType::CompRshift, TokenType::Geq, TokenType::Rshift],
+                TokenType::Greater
+            ),
+
+            '!' => self.match_multiple_token(
+                vec![&"="],
+                vec![TokenType::Neq],
+                TokenType::Bang
+            ),
+
+            '=' => self.match_multiple_token(
+                vec![&"="],
+                vec![TokenType::Equal],
+                TokenType::Assign
+            ),
+            _ => { self.eof() }
+        }
+    }
+
     fn whitespace(&mut self) -> Token {
         // while self.peek_is_whitespace() && !self.peek_matches(&'\n') {
         //     self.advance();
@@ -277,15 +319,27 @@ impl Lexer<'_> {
     fn matches(&mut self, expected: &char) -> bool {
         match self.peek() {
             Some(c) => {
-                if c == expected {
-                    self.advance();
-                    true
-                } else {
-                    false
+                if c != expected {
+                    return false;
                 }
+                self.advance();
             }
-            None => false,
+            None => return false,
         }
+        true
+    }
+
+    fn long_matches(&mut self, expected: &str) -> bool {
+        for (i, c) in expected.chars().enumerate() {
+            match self.chars.peek_nth(i) {
+                Some(&peeked) if peeked == c => continue,
+                _ => return false,
+            }
+        }
+        for _ in 0..expected.len() {
+            self.advance();
+        }
+        true
     }
 
     fn peek_is_digit(&mut self) -> bool{

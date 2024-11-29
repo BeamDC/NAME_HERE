@@ -40,7 +40,7 @@ fn numbers() {
 fn strings() {
     let mut lx = Lexer::new(r#""hello,""world!""#);
     let tokens = lx.tokenize_no_whitespace();
-    println!("{:?}", lx.tokens);
+    println!("{:?}", tokens);
     assert_eq!(tokens[0], Token::new(TokenType::String, "hello,".to_owned()));
     assert_eq!(tokens[1], Token::new(TokenType::String, "world!".to_owned()));
 }
@@ -55,17 +55,16 @@ fn identifiers() {
     assert_eq!(tokens[2], Token::new(TokenType::Ident, "BaZ".to_owned()));
 }
 
-// #[test]
-// fn operators() {
-//     let mut lx = Lexer::new(r"-1+1 & <<");
-//     lx.tokenize();
-//     let tokens = lx.tokenize_no_whitespace();
-//     println!("{:?}", tokens);
-//     assert_eq!(tokens[0], Token::new(TokenType::Operator, "u-".to_owned()));
-//     assert_eq!(tokens[2], Token::new(TokenType::Operator, "+".to_owned()));
-//     assert_eq!(tokens[4], Token::new(TokenType::Operator, "&".to_owned()));
-//     assert_eq!(tokens[5], Token::new(TokenType::Operator, "<<".to_owned()));
-// }
+#[test]
+fn operators() {
+    let mut lx = Lexer::new(r"> >> >= >>=");
+    let tokens = lx.tokenize_no_whitespace();
+    println!("{:#?}", tokens);
+    assert_eq!(tokens[0], Token::new(TokenType::Greater, ">".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Rshift, ">>".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Geq, ">=".to_owned()));
+    assert_eq!(tokens[3], Token::new(TokenType::CompRshift, ">>=".to_owned()));
+}
 
 #[test]
 // currently, the angled bracket is also recognized as an operator,

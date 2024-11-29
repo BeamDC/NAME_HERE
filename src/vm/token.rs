@@ -1,16 +1,8 @@
-const KEYWORDS: [&str; 13] = [
-    "fn",
-    "bool", "true", "false",
-    "let", "const",
-    "if", "else",
-    "for", "while", "loop",
-    "nil",
-    "return"
-];
+use crate::constants::KEYWORDS;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum TokenType {
-    // single char
+    // Single char
     Comma,
     Dot,
     Semicolon,
@@ -23,11 +15,17 @@ pub enum TokenType {
     Langled,
     Rangled,
     Assign,
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
+
+    // Mathematical
+    Add, Inc, CompAdd,
+    Sub, Dec, CompSub,
+    Mul, Exp, CompMul,
+    Div, CompDiv,
+    Mod, CompMod,
+
+    // Bitwise
+    Lshift, CompLshift,
+    Rshift, CompRshift,
 
     // Logical
     Bang,
@@ -44,7 +42,7 @@ pub enum TokenType {
     Function,
     Comment,
 
-    // keywords
+    // Keywords
     Fn,
     Bool, True, False,
     Let, Const,
@@ -53,12 +51,13 @@ pub enum TokenType {
     Nil,
     Return,
 
-    // literals
+    // Literals
     Ident,
     String,
     Numeric,
 
-    // misc
+    // Misc
+    Arrow,
     Error, Eof, Whitespace,
 }
 
