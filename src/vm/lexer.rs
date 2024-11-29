@@ -5,13 +5,11 @@
  * repo -
  * book -
  */
-use std::cmp::PartialEq;
-use std::collections::HashMap;
-use std::iter::Peekable;
-use std::str::Chars;
-use itertools::{peek_nth, Itertools, PeekNth};
 use crate::vm::operators::{Operator, OperatorMap};
 use crate::vm::token::{Token, TokenType};
+use itertools::{peek_nth, PeekNth};
+use std::collections::HashMap;
+use std::str::Chars;
 
 // Lookup tables
 const fn make_lut(chars: &str) -> [bool; 256] {

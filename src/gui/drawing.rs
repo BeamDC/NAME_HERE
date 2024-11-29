@@ -24,14 +24,21 @@ pub trait DrawTextedit {
         let mut contents: String;
         for token in tokens {
             match token.token_type {
-                TokenType::Numeric => {params.color = NUMERIC_COLOR;}
-                TokenType::String => {params.color = STRING_COLOR;}
-                TokenType::Ident => {params.color = IDENT_COLOR;}
-                TokenType::Function => {params.color = FUNCTION_COLOR;}
-                TokenType::Comment => {params.color = COMMENT_COLOR;}
-                _ => {params.color = WHITE;}
+                TokenType::Numeric => { params.color = NUMERIC_COLOR; }
+                TokenType::String => { params.color = STRING_COLOR; }
+                TokenType::Ident => { params.color = IDENT_COLOR; }
+                TokenType::Function => { params.color = FUNCTION_COLOR; }
+                TokenType::Comment => { params.color = COMMENT_COLOR; }
+                _ => {
+                    if token.is_keyword() { params.color = KEYWORD_COLOR; }
+                    else { params.color = WHITE; }
+                }
             }
+
             contents = token.value.clone();
+            if token.token_type == TokenType::String {
+                contents = format!("\"{}\"", contents);
+            }
             if contents == "\r" {continue;}
             if contents == "\n" {
                 y_offset += self.font_size();

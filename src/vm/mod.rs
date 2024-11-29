@@ -3,3 +3,4 @@ pub(crate) mod lexer;
 pub(crate) mod operators;
 pub(crate) mod compiler;
 pub(crate) mod token;
+mod parser;

@@ -1,3 +1,13 @@
+const KEYWORDS: [&str; 13] = [
+    "fn",
+    "bool", "true", "false",
+    "let", "const",
+    "if", "else",
+    "for", "while", "loop",
+    "nil",
+    "return"
+];
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum TokenType {
     // single char
@@ -64,5 +74,9 @@ impl Token {
             token_type,
             value ,
         }
+    }
+
+    pub fn is_keyword(&self) -> bool{
+        KEYWORDS.contains(&self.value.as_str())
     }
 }
