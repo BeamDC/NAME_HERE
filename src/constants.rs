@@ -40,3 +40,12 @@ pub const INTEGER_DIGITS: [bool; 256] = make_lut("0123456789");
 pub const IDENT_CHARS: [bool; 256] = make_lut(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
 );
+pub const KEYWORDS: [&str; 13] = [
+    "fn",
+    "bool", "true", "false",
+    "let", "const",
+    "if", "else",
+    "for", "while", "loop",
+    "nil",
+    "return"
+];
