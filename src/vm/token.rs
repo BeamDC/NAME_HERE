@@ -4,7 +4,7 @@ use crate::constants::KEYWORDS;
 pub enum TokenType {
     // Single char
     Comma,
-    Dot,
+    Colon,
     Semicolon,
     Lparen,
     Rparen,
@@ -15,6 +15,9 @@ pub enum TokenType {
     Langled,
     Rangled,
     Assign,
+
+    // Uncategorized Ops
+    Dot, Range,
 
     // Mathematical
     Add, Inc, CompAdd,

@@ -65,11 +65,12 @@ impl Lexer<'_> {
                 '[' => self.make_token(TokenType::Lsquare),
                 ']' => self.make_token(TokenType::Rsquare),
                 ';' => self.make_token(TokenType::Semicolon),
-                '.' => self.make_token(TokenType::Dot),
+                ':' => self.make_token(TokenType::Colon),
                 ',' => self.make_token(TokenType::Comma),
 
 
                 // match multi chars
+                '.' |
                 '+' |
                 '-' |
                 '*' |
@@ -192,6 +193,7 @@ impl Lexer<'_> {
 
         if self.peek_matches(&'.') {
             self.advance();
+            if self.peek_matches(&'.') {} // todo: range detection
             while self.peek_is_digit() {
                 self.advance();
             }
@@ -208,6 +210,12 @@ impl Lexer<'_> {
 
     fn operator(&mut self, c: char) -> Token {
         match c {
+            '.' => self.match_multiple_token(
+                vec![&"."],
+                vec![TokenType::Range],
+                TokenType::Dot
+            ),
+
             '+' => self.match_multiple_token(
                 vec![&"+",&"="],
                 vec![TokenType::Inc, TokenType::CompAdd],
