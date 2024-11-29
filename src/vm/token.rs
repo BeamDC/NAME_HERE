@@ -74,8 +74,4 @@ impl Token {
             value ,
         }
     }
-
-    pub fn is_keyword(&self) -> bool{
-        KEYWORDS.contains(&self.value.as_str())
-    }
 }
