@@ -1,5 +1,5 @@
 /*
- * Goal:
+ * Goal: 🤥
  * 1. Create a simple text editor for our own language
  * 2. Create a simple vm for our own language
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
