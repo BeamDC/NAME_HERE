@@ -170,7 +170,7 @@ impl Lexer<'_> {
     }
 
     fn comment(&mut self) -> Token {
-        while !self.peek_matches(&'\n') && !self.is_eof() {
+        while !self.peek_matches(&'\n') && !self.peek_matches(&'\0') && !self.is_eof() {
             self.advance();
         }
 
