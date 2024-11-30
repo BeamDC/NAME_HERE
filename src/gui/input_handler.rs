@@ -53,6 +53,16 @@ pub trait GlobalInputHandle {
     fn parse_control_inputs(&mut self, key: KeyCode) {
         let mut editor = self.textedit();
         match key {
+            KeyCode::Right => {
+                if editor.pointer < editor.buffer.len() - 1 {
+                    editor.pointer += 1;
+                }
+            }
+            KeyCode::Left => {
+                if editor.pointer > 0 {
+                    editor.pointer -= 1;
+                }
+            }
             KeyCode::S => { // save the editor contents to the open file
                 editor.write().unwrap();
             }
@@ -300,7 +310,6 @@ pub trait GlobalInputHandle {
                 }
             }
             KeyCode::Left => {
-                // if self.gui().name() == "Terminal" {return}
                 if editor.pointer > 0 {
                     editor.pointer -= 1;
                 }
