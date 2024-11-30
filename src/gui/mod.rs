@@ -1,7 +1,9 @@
+use std::fs;
 use macroquad::prelude::Font;
 use crate::gui::editor::EditorGui;
 use crate::gui::terminal::TerminalGui;
 use crate::gui::toolbar::{Icons, Toolbar};
+use rfd::FileDialog;
 // use gui::Gui;
 // use input_handler::GlobalInputHandle;
 
@@ -23,6 +25,7 @@ pub struct GuiManager {
     editor: EditorGui,
     terminal: TerminalGui,
     active: PossibleGuis,
+    previous: Icons,
 }
 
 impl GuiManager {
@@ -32,6 +35,7 @@ impl GuiManager {
             editor: EditorGui::new(font.clone()),
             terminal: TerminalGui::new(font.clone()),
             active: PossibleGuis::Editor,
+            previous: Icons::Editor,
         }
     }
 
@@ -46,8 +50,36 @@ impl GuiManager {
     pub fn read_inputs(&mut self) {
         // detect icon clicks
         match self.toolbar.selected {
-            Some(Icons::Editor) => { self.active = PossibleGuis::Editor; }
-            Some(Icons::Terminal) => { self.active = PossibleGuis::Terminal; }
+            Some(Icons::Editor) => {
+                self.active = PossibleGuis::Editor;
+                self.previous = self.toolbar.selected.unwrap();
+            }
+            Some(Icons::Terminal) => {
+                self.active = PossibleGuis::Terminal;
+                self.previous = self.toolbar.selected.unwrap();
+            }
+            // File Open Business
+            Some(Icons::FileOpen) => {
+                let file = FileDialog::new()
+                    .set_title("Choose your file wisely...")
+                    .add_filter("text", &["txt"])
+                    .add_filter("rust", &["rs", "toml"])
+                    .set_directory("/")
+                    .pick_file();
+
+                if file.is_some() {
+                    let filepath = file.unwrap().to_str().unwrap().to_owned();
+                    self.editor.textedit.write().unwrap();
+                    self.editor.textedit.file = Some(filepath);
+                    self.editor.textedit.read().unwrap();
+                    self.editor.textedit.buffer.push(0);
+                    self.editor.textedit.redraw = true;
+
+                    //let content = fs::read_to_string(file.unwrap_or_default()).expect("No path specified in file open (gui/mod.rs)");
+                    //println!("{}", content);
+                }
+                self.toolbar.selected = Option::from(self.previous);
+            }
             _ => {},
         }
     }
