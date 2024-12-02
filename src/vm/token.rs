@@ -29,6 +29,10 @@ pub enum TokenType {
     // Bitwise
     Lshift, CompLshift,
     Rshift, CompRshift,
+    BitAnd, CompBitAnd,
+    BitOr, CompBitOr,
+    BitXor, CompBitXor,
+    BitNot, CompBitNot,
 
     // Logical
     Bang,
@@ -57,6 +61,7 @@ pub enum TokenType {
     // Literals
     Ident,
     String,
+    Char,
     Numeric,
 
     // Misc

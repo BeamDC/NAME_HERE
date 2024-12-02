@@ -26,6 +26,7 @@ pub trait DrawTextedit {
             match token.token_type {
                 TokenType::Numeric => { params.color = NUMERIC_COLOR; }
                 TokenType::String => { params.color = STRING_COLOR; }
+                TokenType::Char => { params.color = STRING_COLOR; }
                 TokenType::Ident => { params.color = IDENT_COLOR; }
                 TokenType::Function => { params.color = FUNCTION_COLOR; }
                 TokenType::Comment => { params.color = COMMENT_COLOR; }
@@ -38,6 +39,8 @@ pub trait DrawTextedit {
             contents = token.value.clone();
             if token.token_type == TokenType::String {
                 contents = format!("\"{}\"", contents);
+            }else if token.token_type == TokenType::Char {
+                contents = format!("'{}'", contents);
             }
             if contents == "\r" {continue;}
             if contents == "\n" {

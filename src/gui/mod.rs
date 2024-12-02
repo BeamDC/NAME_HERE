@@ -60,6 +60,7 @@ impl GuiManager {
             }
             // File Open Business
             Some(Icons::FileOpen) => {
+                // todo: this is different for other OS, so well have to add a check for the users system
                 let file = FileDialog::new()
                     .set_title("Choose your file wisely...")
                     .add_filter("text", &["txt"])

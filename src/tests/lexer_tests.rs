@@ -37,6 +37,16 @@ fn numbers() {
 }
 
 #[test]
+fn range() {
+    let mut lx = Lexer::new(r"1..n");
+    let tokens = lx.tokenize_no_whitespace();
+    println!("{:?}", tokens);
+    assert_eq!(tokens[0], Token::new(TokenType::Numeric, "1".to_owned()));
+    assert_eq!(tokens[1], Token::new(TokenType::Range, "..".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Ident, "n".to_owned()));
+}
+
+#[test]
 fn strings() {
     let mut lx = Lexer::new(r#""hello,""world!""#);
     let tokens = lx.tokenize_no_whitespace();

@@ -1,3 +1,5 @@
+// yandere sim code
+
 use crate::editor::texteditor::Textedit;
 use crate::gui::gui::Gui;
 use crate::gui::toolbar::{Icons, Toolbar};
