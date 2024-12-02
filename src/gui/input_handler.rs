@@ -598,6 +598,7 @@ pub trait ToolbarHandle {
         // get name of the icon
         let name = match toolbar.hovered {
             Some(Icons::FileOpen) => "Open File",
+            Some(Icons::ProjectFiles) => "Project Files",
             Some(Icons::Editor) => "Editor",
             Some(Icons::Terminal) => "Terminal",
             Some(Icons::Search) => "Search",

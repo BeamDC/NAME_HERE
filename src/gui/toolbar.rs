@@ -40,6 +40,7 @@ macro_rules! indicate_hovered {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Icons {
+    ProjectFiles,
     FileOpen,
     Search,
     Editor,
@@ -73,6 +74,7 @@ impl Toolbar {
                 color: TOOLBAR_COLOR,
             },
             icons: vec![
+                (Icons::ProjectFiles, Vec2::ZERO),
                 (Icons::FileOpen, Vec2::ZERO),
                 (Icons::Search, Vec2::ZERO),
                 (Icons::Editor, Vec2::ZERO),
@@ -125,6 +127,10 @@ impl Toolbar {
 
             // why must include_bytes! require a string literal T_T
             match icon {
+                Icons::ProjectFiles => {
+                    indicate_hovered!(self.hovered, *icon, position, self.icon_size);
+                    render_icon!("../../src/assets/icons/list.png", position.x, position.y, &params);
+                }
                 Icons::FileOpen => {
                     indicate_hovered!(self.hovered, *icon, position, self.icon_size);
                     render_icon!("../../src/assets/icons/file_open.png", position.x, position.y, &params);
