@@ -1,11 +1,24 @@
 use crate::constants::KEYWORDS;
 
+pub enum NumberType { // for later
+    U8, U16, U32, U64,
+    I8, I16, I32, I64,
+    F32, F64,
+}
+
+pub enum Precedence {
+
+}
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum TokenType {
     // Single char
     Comma,
     Colon,
     Semicolon,
+    Pound,
+    Dollar,
+    At,
     Lparen,
     Rparen,
     Lsquare,
@@ -37,11 +50,11 @@ pub enum TokenType {
     // Logical
     Bang,
     Neq,
-    Equal,
-    Greater,
-    Less,
-    Geq,
-    Leq,
+    Eq,
+    Gt,
+    Lt,
+    Ge,
+    Le,
     And,
     Or,
 
@@ -55,7 +68,7 @@ pub enum TokenType {
     Let, Const,
     If, Else,
     For, While, Loop,
-    Nil,
+    Null,
     Return,
 
     // Literals
@@ -83,6 +96,7 @@ impl Token {
         }
     }
 
+    #[inline]
     pub fn is_keyword(&self) -> bool{
         KEYWORDS.contains(&self.value.as_str())
     }

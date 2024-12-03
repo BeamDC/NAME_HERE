@@ -2,40 +2,41 @@
  * read in the buffer contents. split them into tokens
  *
  * Shoutout Robert Nystrom / Diego Freijo for the inspiration
- * repo -
- * book -
  */
+use std::iter::Peekable;
 use crate::vm::token::{Token, TokenType};
-use itertools::{peek_nth, PeekNth};
 use std::str::Chars;
 use crate::constants::{INTEGER_DIGITS, IDENT_CHARS, WHITESPACE};
 
 pub struct Lexer<'a> {
     pub src: &'a str,
-    chars: PeekNth<Chars<'a>>,
+    chars: Peekable<Chars<'a>>,
     start: usize,
     current: usize,
     line: usize,
 }
 
+#[inline]
 fn is_digit(c: char) -> bool {
     INTEGER_DIGITS[c as usize]
 }
 
+#[inline]
 fn is_alpha(c: char) -> bool {
     IDENT_CHARS[c as usize]
 }
 
+#[inline]
 fn is_whitespace(c: char) -> bool {
     WHITESPACE[c as usize]
 }
 
-// todo: allow the lexer to have its source changed, make parse return the tokens instead of storing them
 impl Lexer<'_> {
     pub fn new(src: &str) -> Lexer {
         Lexer {
             src,
-            chars     : peek_nth(src.chars()),
+            // chars     : peek_nth(src.chars()),
+            chars     : src.chars().peekable(),
             start     : 0,
             current   : 0,
             line      : 0,
@@ -44,7 +45,7 @@ impl Lexer<'_> {
 
     pub fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens = vec![];
-        while !self.is_eof() {
+        while !self.check_eof() {
             tokens.push(self.next_token());
         }
         tokens
@@ -52,7 +53,7 @@ impl Lexer<'_> {
 
     pub fn tokenize_no_whitespace(&mut self) -> Vec<Token> {
         let mut tokens = vec![];
-        while !self.is_eof() {
+        while !self.check_eof() {
             let token = self.next_token();
             if token.token_type != TokenType::Whitespace {
                 tokens.push(token);
@@ -79,7 +80,9 @@ impl Lexer<'_> {
                 ';' => self.make_token(TokenType::Semicolon),
                 ':' => self.make_token(TokenType::Colon),
                 ',' => self.make_token(TokenType::Comma),
-
+                '#' => self.make_token(TokenType::Pound),
+                '$' => self.make_token(TokenType::Dollar),
+                '@' => self.make_token(TokenType::At),
 
                 // match multi chars
                 '.' |
@@ -118,7 +121,7 @@ impl Lexer<'_> {
         self.chars.next()
     }
 
-    fn is_eof(&mut self) -> bool {
+    fn check_eof(&mut self) -> bool {
         self.peek() == None
     }
 
@@ -160,7 +163,7 @@ impl Lexer<'_> {
             "for" => self.make_token(TokenType::For),
             "while" => self.make_token(TokenType::While),
             "loop" => self.make_token(TokenType::Loop),
-            "nil" => self.make_token(TokenType::Nil),
+            "null" => self.make_token(TokenType::Null),
             "return" => self.make_token(TokenType::Return),
             _ => self.make_token(TokenType::Ident)
         }
@@ -169,14 +172,14 @@ impl Lexer<'_> {
     fn string(&mut self) -> Token {
         self.start += 1;
 
-        while !self.peek_matches(&'"') && !self.is_eof() {
-            // if self.peek_matches(&'\n') { // in case ewe need to track current line
+        while !self.peek_matches(&'"') && !self.check_eof() {
+            // if self.peek_matches(&'\n') { // in case we need to track current line
             //     self.line += 1;
             // }
             self.advance();
         }
 
-        if self.is_eof() {
+        if self.check_eof() {
             self.error(
                 format!("Unterminated string. Token so far: {:?}",
                          self.make_token(TokenType::String)))
@@ -187,17 +190,18 @@ impl Lexer<'_> {
             res
         }
     }
+
     fn char(&mut self) -> Token {
         self.start += 1;
 
-        while !self.peek_matches(&'\'') && !self.is_eof() {
+        while !self.peek_matches(&'\'') && !self.check_eof() {
             // if self.peek_matches(&'\n') { // in case ewe need to track current line
             //     self.line += 1;
             // }
             self.advance();
         }
 
-        if self.is_eof() {
+        if self.check_eof() {
             self.error(
                 format!("Unterminated char. Token so far: {:?}",
                          self.make_token(TokenType::Char)))
@@ -210,11 +214,11 @@ impl Lexer<'_> {
     }
 
     fn comment(&mut self) -> Token {
-        while !self.peek_matches(&'\n') && !self.peek_matches(&'\0') && !self.is_eof() {
+        while !self.peek_matches(&'\n') && !self.peek_matches(&'\0') && !self.check_eof() {
             self.advance();
         }
 
-        if self.is_eof() {
+        if self.check_eof() {
             self.error(
                 format!("Unterminated comment. Token so far: {:?}",
                          self.make_token(TokenType::Comment)))
@@ -289,14 +293,14 @@ impl Lexer<'_> {
 
             '<' => self.match_multiple_token(
                 vec![&"<=",&"=",&"<"],
-                vec![TokenType::CompLshift, TokenType::Leq, TokenType::Lshift],
-                TokenType::Less
+                vec![TokenType::CompLshift, TokenType::Le, TokenType::Lshift],
+                TokenType::Lt
             ),
 
             '>' => self.match_multiple_token(
                 vec![&">=",&"=",&">",],
-                vec![TokenType::CompRshift, TokenType::Geq, TokenType::Rshift],
-                TokenType::Greater
+                vec![TokenType::CompRshift, TokenType::Ge, TokenType::Rshift],
+                TokenType::Gt
             ),
 
             '&' => self.match_multiple_token(
@@ -331,7 +335,7 @@ impl Lexer<'_> {
 
             '=' => self.match_multiple_token(
                 vec![&"="],
-                vec![TokenType::Equal],
+                vec![TokenType::Eq],
                 TokenType::Assign
             ),
             _ => { self.eof() }
@@ -371,8 +375,12 @@ impl Lexer<'_> {
         self.chars.peek()
     }
 
-    fn peek_next(&mut self) -> Option<&char> {
-        self.chars.peek_nth(1)
+    fn peek_nth(&mut self, n: usize) -> Option<char> {
+        let mut chars = self.chars.clone();
+        for _ in 0..n {
+            chars.next()?;
+        }
+        chars.next()
     }
 
     fn peek_matches(&mut self, expected: &char) -> bool {
@@ -383,8 +391,8 @@ impl Lexer<'_> {
     }
 
     fn peek_next_matches(&mut self, expected: &char) -> bool {
-        match self.peek_next() {
-            Some(c) => c == expected,
+        match self.peek_nth(1) {
+            Some(c) => c == *expected,
             None => false,
         }
     }
@@ -404,8 +412,8 @@ impl Lexer<'_> {
 
     fn long_matches(&mut self, expected: &str) -> bool {
         for (i, c) in expected.chars().enumerate() {
-            match self.chars.peek_nth(i) {
-                Some(&peeked) if peeked == c => continue,
+            match self.peek_nth(i) {
+                Some(peeked) if peeked == c => continue,
                 _ => return false,
             }
         }
@@ -415,20 +423,21 @@ impl Lexer<'_> {
         true
     }
 
+    #[inline]
     fn peek_is_digit(&mut self) -> bool{
         match self.peek() {
             Some(c) => is_digit(*c),
             None => false,
         }
     }
-
+    #[inline]
     fn peek_is_alpha(&mut self) -> bool{
         match self.peek() {
             Some(c) => is_alpha(*c),
             None => false,
         }
     }
-
+    #[inline]
     fn peek_is_whitespace(&mut self) -> bool{
         match self.peek() {
             Some(c) => is_whitespace(*c),

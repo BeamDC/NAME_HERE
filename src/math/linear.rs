@@ -30,7 +30,6 @@ pub fn transpose<T>(matrix: Matrix<T>) -> Matrix<T> {
     if matrix.width * matrix.height == 0 {
         matrix
     }
-
     else {
         matrix
     }

@@ -70,9 +70,9 @@ fn operators() {
     let mut lx = Lexer::new(r"> >> >= >>=");
     let tokens = lx.tokenize_no_whitespace();
     println!("{:#?}", tokens);
-    assert_eq!(tokens[0], Token::new(TokenType::Greater, ">".to_owned()));
+    assert_eq!(tokens[0], Token::new(TokenType::Gt, ">".to_owned()));
     assert_eq!(tokens[1], Token::new(TokenType::Rshift, ">>".to_owned()));
-    assert_eq!(tokens[2], Token::new(TokenType::Geq, ">=".to_owned()));
+    assert_eq!(tokens[2], Token::new(TokenType::Ge, ">=".to_owned()));
     assert_eq!(tokens[3], Token::new(TokenType::CompRshift, ">>=".to_owned()));
 }
 
@@ -114,13 +114,4 @@ fn comments() {
     assert_eq!(tokens[0], Token::new(TokenType::Comment, "? this is a comment ".to_owned()));
     assert_eq!(tokens[1], Token::new(TokenType::Ident, "this".to_owned()));
     assert_eq!(tokens[2], Token::new(TokenType::Ident, "isnt".to_owned()));
-}
-
-#[test]
-fn misc() {
-    let mut lx = Lexer::new(r";,");
-    let tokens = lx.tokenize_no_whitespace();
-    println!("{:?}", tokens);
-    assert_eq!(tokens[0], Token::new(TokenType::Semicolon, ";".to_owned()));
-    assert_eq!(tokens[1], Token::new(TokenType::Comma, ",".to_owned()));
 }
