@@ -4,7 +4,7 @@
  * Shoutout Robert Nystrom / Diego Freijo for the inspiration
  */
 use std::iter::Peekable;
-use crate::vm::token::{Token, TokenType};
+use crate::compiler::token::{Token, TokenType};
 use std::str::Chars;
 use crate::constants::{INTEGER_DIGITS, IDENT_CHARS, WHITESPACE};
 

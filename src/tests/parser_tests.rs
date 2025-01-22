@@ -1,4 +1,4 @@
-// use crate::vm::lexer::{Lexer, Token, TokenType};
+// use crate::compiler::lexer::{Lexer, Token, TokenType};
 //
 // #[test]
 // fn test_parser() {

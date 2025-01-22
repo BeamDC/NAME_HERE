@@ -1,7 +1,7 @@
 use macroquad::color::{GRAY, RED, WHITE};
 use macroquad::prelude::{draw_rectangle, draw_text_ex, Font, TextParams};
 use macroquad::text::measure_text;
-use crate::vm::token::{Token, TokenType};
+use crate::compiler::token::{Token, TokenType};
 use crate::constants::{COMMENT_COLOR, FUNCTION_COLOR, IDENT_COLOR, KEYWORD_COLOR, NUMERIC_COLOR, OPERATOR_COLOR, STRING_COLOR, TOOLBAR_SIZE};
 use crate::editor::texteditor::Textedit;
 

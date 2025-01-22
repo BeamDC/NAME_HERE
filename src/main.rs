@@ -1,13 +1,13 @@
 /*
  * Goal: 🤥
  * 1. Create a simple text editor for our own language
- * 2. Create a simple vm for our own language
+ * 2. Create a simple compiler for our own language
  * knowledge here: https://www.geeksforgeeks.org/phases-of-a-compiler/
  */
 
 // get icons (256x256) here https://fonts.google.com/icons?icon.size=64&icon.color=%23e8eaed
 
-mod vm;
+mod compiler;
 mod tests;
 mod editor;
 mod types;
@@ -38,7 +38,6 @@ async fn main() {
     app.init();
 
     loop {
-        // draw_text(format!("{}", get_fps()).as_str(), screen_width() * 0.75, 20.0, 30.0, YELLOW);
         app.draw();
         next_frame().await
     }

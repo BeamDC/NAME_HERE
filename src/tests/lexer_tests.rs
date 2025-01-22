@@ -1,5 +1,5 @@
-use crate::vm::lexer::{Lexer};
-use crate::vm::token::{Token, TokenType};
+use crate::compiler::lexer::{Lexer};
+use crate::compiler::token::{Token, TokenType};
 
 #[test]
 fn single_tokens() {

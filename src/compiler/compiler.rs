@@ -1,6 +1,6 @@
 // compile a tokenized file into chunks of bytecode
 
-use crate::vm::lexer::Lexer;
+use crate::compiler::lexer::Lexer;
 
 pub struct Compiler<'a> {
     pub error: bool,
